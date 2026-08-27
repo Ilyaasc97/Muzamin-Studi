@@ -11,10 +11,10 @@ permissions:
 
 jobs:
   # ═══════════════════════════════════════════════════════════════
-  # 1. بناء نسخة Windows (x64 Release)
+  # 1. بناء نسخة Windows (x64 Release & Setup Installer)
   # ═══════════════════════════════════════════════════════════════
   build-windows:
-    name: Build Windows Release
+    name: Build Windows Release & Installer
     runs-on: windows-latest
     steps:
       - name: Checkout repository
@@ -35,20 +35,30 @@ jobs:
       - name: Build Windows Executable
         run: flutter build windows --release
 
-      - name: Archive Windows Release
+      - name: Build Inno Setup Installer
         shell: pwsh
         run: |
           $version = "${{ github.ref_name }}"
           if ([string]::IsNullOrWhiteSpace($version) -or $version -notmatch '^v') { $version = "v1.0.0" }
-          $zipName = "Muzamin_Studio_${version}_Windows_x64.zip"
-          Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath $zipName
-          Write-Output "WINDOWS_ZIP=$zipName" >> $env:GITHUB_ENV
+          $cleanVersion = $version.TrimStart('v')
+          mkdir release_dist -ErrorAction SilentlyContinue
 
-      - name: Upload Windows Artifact
+          # Run Inno Setup Compiler (pre-installed on windows-latest runner)
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DMyAppVersion="$cleanVersion" windows\installer\muzamin_setup.iss
+
+      - name: Archive Windows Portable ZIP
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}"
+          if ([string]::IsNullOrWhiteSpace($version) -or $version -notmatch '^v') { $version = "v1.0.0" }
+          $zipName = "release_dist\Muzamin_Studio_${version}_Windows_Portable.zip"
+          Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath $zipName
+
+      - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: windows-release
-          path: Muzamin_Studio_*_Windows_x64.zip
+          path: release_dist/*
 
   # ═══════════════════════════════════════════════════════════════
   # 2. بناء نسخة macOS (Universal / x64 / ARM)
@@ -78,7 +88,7 @@ jobs:
           if [ -z "$VERSION" ] || [[ ! "$VERSION" =~ ^v ]]; then VERSION="v1.0.0"; fi
           ZIP_NAME="Muzamin_Studio_${VERSION}_macOS.zip"
           cd build/macos/Build/Products/Release
-          zip -r "../../../../$ZIP_NAME" tafsir_timing_tool.app
+          zip -r "../../../../$ZIP_NAME" "Muzamin Studio.app" || zip -r "../../../../$ZIP_NAME" *.app
           cd ../../../..
           echo "MACOS_ZIP=$ZIP_NAME" >> $GITHUB_ENV
 
@@ -144,7 +154,7 @@ jobs:
       - name: Prepare release files
         run: |
           mkdir -p release_assets
-          cp windows-release/*.zip release_assets/ || true
+          cp windows-release/* release_assets/ || true
           cp macos-release/*.zip release_assets/ || true
           cp linux-release/*.tar.gz release_assets/ || true
           ls -la release_assets/
@@ -167,7 +177,8 @@ jobs:
             - 🌐 **Multi-Language Support**: العربية, English, Soomaali.
 
             ### 📦 Download Packages:
-            - **Windows**: `Muzamin_Studio_${{ github.ref_name }}_Windows_x64.zip`
+            - **Windows (Installer - Recommended)**: `Muzamin_Studio_${{ github.ref_name }}_Windows_Setup.exe`
+            - **Windows (Portable ZIP)**: `Muzamin_Studio_${{ github.ref_name }}_Windows_Portable.zip`
             - **macOS**: `Muzamin_Studio_${{ github.ref_name }}_macOS.zip`
             - **Linux**: `Muzamin_Studio_${{ github.ref_name }}_Linux_x64.tar.gz`
           draft: false

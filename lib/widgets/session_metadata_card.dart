@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import '../controllers/timing_session.dart';
-import '../services/quran_font_service.dart';
 import '../services/settings_service.dart';
 import 'preload_script_dialog.dart';
 import 'quran_fetch_dialog.dart';
@@ -373,6 +372,33 @@ class _SessionMetadataCardState extends State<SessionMetadataCard> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                            if (widget.session.currentScriptItem?.surahName != null ||
+                                widget.session.currentScriptItem?.page != null) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                decoration: BoxDecoration(
+                                  color: scheme.primary.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(
+                                    color: scheme.primary.withValues(alpha: 0.3),
+                                  ),
+                                ),
+                                child: Text(
+                                  [
+                                    if (widget.session.currentScriptItem?.surahName != null)
+                                      '${widget.session.currentScriptItem!.surahName} (${widget.session.currentScriptItem!.verseNumber})',
+                                    if (widget.session.currentScriptItem?.page != null)
+                                      '${'edit.page'.tr()} ${widget.session.currentScriptItem!.page}',
+                                  ].join(' • '),
+                                  style: TextStyle(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: scheme.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
                             const Spacer(),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -425,11 +451,13 @@ class _SessionMetadataCardState extends State<SessionMetadataCard> {
                           textAlign: TextAlign.center,
                           textDirection: ui.TextDirection.rtl,
                           style: TextStyle(
-                            fontFamily: QuranFontService.getFontFamilyForPage(widget.session.activePage),
+                            fontFamily: widget.session.currentScriptFontFamily,
                             fontSize: 22,
                             height: 1.8,
-                            fontWeight: FontWeight.w600,
-                            color: scheme.onSurface,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white
+                                : const Color(0xFF1E293B),
                           ),
                         ),
                       ],

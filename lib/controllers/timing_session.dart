@@ -10,7 +10,10 @@ import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/app_logger.dart';
+import '../models/preloaded_script_item.dart';
 import '../models/timing_entry.dart';
+import '../services/quran_api_service.dart';
+import '../services/quran_font_service.dart';
 import '../services/settings_service.dart';
 import '../services/waveform_service.dart';
 
@@ -35,7 +38,7 @@ class TimingSession extends ChangeNotifier {
   ];
 
   final List<TimingEntry> _entries = <TimingEntry>[];
-  final List<String> _preloadedScript = <String>[];
+  final List<PreloadedScriptItem> _preloadedScript = <PreloadedScriptItem>[];
   int _scriptIndex = 0;
 
   int _idCounter = 0;
@@ -53,7 +56,10 @@ class TimingSession extends ChangeNotifier {
   String? _importedAudioUrl;
 
   List<TimingEntry> get entries => List<TimingEntry>.unmodifiable(_entries);
-  List<String> get preloadedScript => List<String>.unmodifiable(_preloadedScript);
+  List<String> get preloadedScript =>
+      List<String>.unmodifiable(_preloadedScript.map((e) => e.text));
+  List<PreloadedScriptItem> get preloadedScriptItems =>
+      List<PreloadedScriptItem>.unmodifiable(_preloadedScript);
   int get scriptIndex => _scriptIndex;
   bool get hasPreloadedScript =>
       _preloadedScript.isNotEmpty && _scriptIndex < _preloadedScript.length;
@@ -61,8 +67,14 @@ class TimingSession extends ChangeNotifier {
   bool get canSkipScriptLine => hasPreloadedScript;
   int get totalScriptCount => _preloadedScript.length;
   int get currentScriptVerseIndex => _scriptIndex + 1;
-  String? get currentScriptLine =>
+  PreloadedScriptItem? get currentScriptItem =>
       hasPreloadedScript ? _preloadedScript[_scriptIndex] : null;
+  String? get currentScriptLine => currentScriptItem?.text;
+  int? get currentScriptPage => currentScriptItem?.page ?? _activePage;
+  String get currentScriptFontFamily =>
+      currentScriptItem?.fontFamily ??
+      QuranFontService.getFontFamilyForPage(currentScriptPage);
+  int? get currentScriptVerseNumber => currentScriptItem?.verseNumber ?? _nextVerse;
   int get remainingScriptCount =>
       hasPreloadedScript ? _preloadedScript.length - _scriptIndex : 0;
 
@@ -91,17 +103,24 @@ class TimingSession extends ChangeNotifier {
   void setActivePage(int? page) {
     if (_activePage == page) return;
     _activePage = page;
+    if (page != null) {
+      QuranFontService.instance.ensurePageFontLoaded(page);
+    }
     notifyListeners();
   }
 
   void incrementPage() {
     _activePage = (_activePage ?? 0) + 1;
+    if (_activePage != null) {
+      QuranFontService.instance.ensurePageFontLoaded(_activePage!);
+    }
     notifyListeners();
   }
 
   void decrementPage() {
     if (_activePage != null && _activePage! > 1) {
       _activePage = _activePage! - 1;
+      QuranFontService.instance.ensurePageFontLoaded(_activePage!);
       notifyListeners();
     }
   }
@@ -111,16 +130,55 @@ class TimingSession extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _syncCurrentScriptState() {
+    if (hasPreloadedScript) {
+      final item = _preloadedScript[_scriptIndex];
+      if (item.page != null) {
+        _activePage = item.page;
+        QuranFontService.instance.ensurePageFontLoaded(item.page!);
+      }
+      if (item.verseNumber != null) {
+        _nextVerse = item.verseNumber!;
+      }
+      if (item.segmentType != null) {
+        _activeType = item.segmentType!;
+      }
+    }
+  }
+
+  void setPreloadedVerses(List<FetchedVerse> verses) {
+    _preloadedScript.clear();
+    for (final v in verses) {
+      _preloadedScript.add(PreloadedScriptItem.fromFetchedVerse(v));
+      if (v.page != null) {
+        QuranFontService.instance.ensurePageFontLoaded(v.page!);
+      }
+    }
+    _scriptIndex = 0;
+    _syncCurrentScriptState();
+    AppLogger.instance.info('تم تحميل ${_preloadedScript.length} آية للتلقيم التلقائي');
+    notifyListeners();
+  }
+
   void setPreloadedScript(List<String> lines) {
     _preloadedScript.clear();
     for (final line in lines) {
       final trimmed = line.trim();
       if (trimmed.isNotEmpty) {
-        _preloadedScript.add(trimmed);
+        _preloadedScript.add(PreloadedScriptItem(text: trimmed));
       }
     }
     _scriptIndex = 0;
+    _syncCurrentScriptState();
     AppLogger.instance.info('تم تحميل ${_preloadedScript.length} نصاً للتلقيم التلقائي');
+    notifyListeners();
+  }
+
+  void setPreloadedItems(List<PreloadedScriptItem> items) {
+    _preloadedScript.clear();
+    _preloadedScript.addAll(items);
+    _scriptIndex = 0;
+    _syncCurrentScriptState();
     notifyListeners();
   }
 
@@ -133,6 +191,7 @@ class TimingSession extends ChangeNotifier {
   void prevScriptLine() {
     if (_scriptIndex > 0) {
       _scriptIndex--;
+      _syncCurrentScriptState();
       notifyListeners();
     }
   }
@@ -140,6 +199,7 @@ class TimingSession extends ChangeNotifier {
   void skipScriptLine() {
     if (hasPreloadedScript) {
       _scriptIndex++;
+      _syncCurrentScriptState();
       notifyListeners();
     }
   }
@@ -274,29 +334,39 @@ class TimingSession extends ChangeNotifier {
       final int end = math.max(adjustedMs, start + 1);
 
       String? attachedText;
+      int entryVerse = _nextVerse;
+      int? entryPage = _activePage;
+      SegmentType entryType = _activeType;
+
       if (hasPreloadedScript) {
-        attachedText = _preloadedScript[_scriptIndex++];
+        final item = _preloadedScript[_scriptIndex++];
+        attachedText = item.text;
+        if (item.verseNumber != null) entryVerse = item.verseNumber!;
+        if (item.page != null) entryPage = item.page;
+        if (item.segmentType != null) entryType = item.segmentType!;
+        _syncCurrentScriptState();
+      } else {
+        _nextVerse++;
       }
 
-      final String? label = attachedText != null && _activeType != SegmentType.quran
+      final String? label = attachedText != null && entryType != SegmentType.quran
           ? attachedText
           : null;
-      final String? textArabic = attachedText != null && _activeType == SegmentType.quran
+      final String? textArabic = attachedText != null && entryType == SegmentType.quran
           ? attachedText
           : attachedText;
 
       _entries.add(TimingEntry(
         id: _idCounter++,
-        verseNumber: _nextVerse,
-        type: _activeType,
-        page: _activePage,
+        verseNumber: entryVerse,
+        type: entryType,
+        page: entryPage,
         startMs: start,
         endMs: end,
         label: label,
         textArabic: textArabic,
       ));
       _pendingStartMs = null;
-      _nextVerse++;
     }
     notifyListeners();
   }
@@ -345,22 +415,33 @@ class TimingSession extends ChangeNotifier {
       if (end - start < 800) continue; // skip slivers under 800ms
 
       String? attachedText;
+      int entryVerse = _nextVerse;
+      int? entryPage = _activePage;
+      SegmentType entryType = _activeType;
+
       if (hasPreloadedScript) {
-        attachedText = _preloadedScript[_scriptIndex++];
+        final item = _preloadedScript[_scriptIndex++];
+        attachedText = item.text;
+        if (item.verseNumber != null) entryVerse = item.verseNumber!;
+        if (item.page != null) entryPage = item.page;
+        if (item.segmentType != null) entryType = item.segmentType!;
+        _syncCurrentScriptState();
+      } else {
+        _nextVerse++;
       }
 
-      final String? label = attachedText != null && _activeType != SegmentType.quran
+      final String? label = attachedText != null && entryType != SegmentType.quran
           ? attachedText
           : null;
-      final String? textArabic = attachedText != null && _activeType == SegmentType.quran
+      final String? textArabic = attachedText != null && entryType == SegmentType.quran
           ? attachedText
           : attachedText;
 
       _entries.add(TimingEntry(
         id: _idCounter++,
-        verseNumber: _nextVerse++,
-        type: _activeType,
-        page: _activePage,
+        verseNumber: entryVerse,
+        type: entryType,
+        page: entryPage,
         startMs: start,
         endMs: end,
         label: label,
@@ -378,8 +459,10 @@ class TimingSession extends ChangeNotifier {
     _entries.removeLast();
     if (_preloadedScript.isNotEmpty && _scriptIndex > 0) {
       _scriptIndex--;
+      _syncCurrentScriptState();
+    } else {
+      _renumberFromListOrder();
     }
-    _renumberFromListOrder();
     notifyListeners();
   }
 
@@ -421,7 +504,7 @@ class TimingSession extends ChangeNotifier {
         'activeType': _activeType.name,
         'activePage': _activePage,
         'sourceFilePath': _sourceFilePath,
-        'preloadedScript': _preloadedScript,
+        'preloadedScript': _preloadedScript.map((e) => e.toJson()).toList(),
         'scriptIndex': _scriptIndex,
         'savedAt': DateTime.now().toIso8601String(),
       };
@@ -454,9 +537,11 @@ class TimingSession extends ChangeNotifier {
         _activePage = data['activePage'] as int?;
         if (data['preloadedScript'] is List) {
           _preloadedScript.addAll(
-            (data['preloadedScript'] as List).map((e) => e.toString()),
+            (data['preloadedScript'] as List)
+                .map((e) => PreloadedScriptItem.fromJson(e)),
           );
           _scriptIndex = data['scriptIndex'] as int? ?? 0;
+          _syncCurrentScriptState();
         }
         _sourceFilePath = data['sourceFilePath'] as String?;
         notifyListeners();

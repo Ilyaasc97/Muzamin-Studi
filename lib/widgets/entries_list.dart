@@ -420,7 +420,7 @@ class _EntryTile extends StatelessWidget {
                     fontFamily: QuranFontService.getFontFamilyForPage(entry.page),
                     fontSize: 16,
                     height: 1.65,
-                    color: isCurrent ? scheme.onSurface : Theme.of(context).hintColor,
+                    color: isCurrent ? scheme.onSurface : scheme.onSurface.withValues(alpha: 0.85),
                   ),
                 ),
               ),

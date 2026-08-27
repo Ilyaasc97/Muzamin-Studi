@@ -113,19 +113,9 @@ class _QuranFetchDialogState extends State<QuranFetchDialog> with SingleTickerPr
   void _applyToSession() {
     if (_fetchedVerses.isEmpty) return;
 
-    // تلقيم النصوص إلى الجلسة
-    final lines = _fetchedVerses.map((v) => v.textArabic).toList();
-    widget.session.setPreloadedScript(lines);
+    // تلقيم الآيات بكامل بياناتها (الصفحات، الخطوط، أرقام الآيات) إلى الجلسة
+    widget.session.setPreloadedVerses(_fetchedVerses);
     widget.session.setActiveType(SegmentType.quran);
-    widget.session.setNextVerse(_fetchedVerses.first.verseNumber);
-
-    if (_fetchedVerses.first.page != null) {
-      widget.session.setActivePage(_fetchedVerses.first.page);
-      final distinctPages = _fetchedVerses.map((v) => v.page).whereType<int>().toSet();
-      for (final page in distinctPages) {
-        QuranFontService.instance.ensurePageFontLoaded(page);
-      }
-    }
 
     Navigator.of(context).pop(_fetchedVerses.length);
   }

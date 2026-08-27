@@ -2,7 +2,9 @@
 ; Muzamin Studio Windows Installer Script
 
 #define MyAppName "Muzamin Studio"
+#ifndef MyAppVersion
 #define MyAppVersion "1.0.0"
+#endif
 #define MyAppPublisher "Tafsiir App"
 #define MyAppURL "https://github.com/Ilyaasc97/Muzamin-Studi"
 #define MyAppExeName "Muzamin Studio.exe"

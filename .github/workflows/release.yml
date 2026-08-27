@@ -35,6 +35,9 @@ jobs:
       - name: Build Windows Executable
         run: flutter build windows --release
 
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress
+
       - name: Build Inno Setup Installer
         shell: pwsh
         run: |
@@ -43,7 +46,7 @@ jobs:
           $cleanVersion = $version.TrimStart('v')
           mkdir release_dist -ErrorAction SilentlyContinue
 
-          # Run Inno Setup Compiler (pre-installed on windows-latest runner)
+          # Run Inno Setup Compiler
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DMyAppVersion="$cleanVersion" windows\installer\muzamin_setup.iss
 
       - name: Archive Windows Portable ZIP

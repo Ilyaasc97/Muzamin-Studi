@@ -91,8 +91,8 @@ jobs:
           if [ -z "$VERSION" ] || [[ ! "$VERSION" =~ ^v ]]; then VERSION="v1.0.0"; fi
           ZIP_NAME="Muzamin_Studio_${VERSION}_macOS.zip"
           cd build/macos/Build/Products/Release
-          zip -r "../../../../$ZIP_NAME" "Muzamin Studio.app" || zip -r "../../../../$ZIP_NAME" *.app
-          cd ../../../..
+          zip -r "$GITHUB_WORKSPACE/$ZIP_NAME" *.app
+          cd "$GITHUB_WORKSPACE"
           echo "MACOS_ZIP=$ZIP_NAME" >> $GITHUB_ENV
 
       - name: Upload macOS Artifact

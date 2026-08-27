@@ -1,0 +1,310 @@
+{
+  "app_title": "مُزامِن",
+  "app_subtitle": "استوديو مزامنة الصوتيات والنصوص الإسلامية للمطورين",
+  
+  "common": {
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "export": "تصدير",
+    "import": "استيراد",
+    "settings": "الإعدادات",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجح",
+    "clear": "مسح"
+  },
+
+  "smart_split": {
+    "tooltip": "التقسيم الذكي حسب السكتات وفترات الصمت",
+    "title": "التقسيم التلقائي حسب السكتات",
+    "desc": "يقوم النظام بتحليل فترات الهدوء في الملف الصوتي وإنشاء علامات توقيت مبدئية تلقائياً.",
+    "sensitivity": "حساسية كشف الصمت",
+    "min_silence": "أدنى مدة للسكتة",
+    "apply_btn": "تطبيق التقسيم التلقائي",
+    "created_count": "تم إنشاء {count} مقطعاً مبدئياً بنجاح",
+    "none_detected": "لم يتم العثور على سكتات واضحة بالإعدادات الحالية"
+  },
+
+  "quran": {
+    "auto_fetch_title": "جلب الآيات القرآنية بالرسم العثماني",
+    "auto_fetch_subtitle": "تحميل نصوص الآيات بدقة مع أرقام الصفحات وتلقيمها فوراً للاستوديو",
+    "tab_by_surah": "حسب السورة ونطاق الآيات",
+    "tab_by_page": "حسب صفحة المصحف",
+    "select_surah": "اختر السورة",
+    "from_verse": "من آية",
+    "to_verse": "إلى آية",
+    "mushaf_page_label": "رقم صفحة المصحف (1 - 604)",
+    "fetch_btn": "جلب الآيات",
+    "fetch_btn_short": "جلب آيات",
+    "ready_to_fetch": "حدد السورة والنطاق ثم اضغط جلب الآيات",
+    "fetched_count": "تم جلب {count} آية بالرسم العثماني",
+    "preview_placeholder": "ستظهر نصوص الآيات هنا للمعاينة قبل التلقيم",
+    "load_to_studio_btn": "تلقيم الآيات إلى الاستوديو",
+    "loaded_success": "تم تلقيم {count} آية قرآنية إلى طابور التسجيل بنجاح"
+  },
+
+  "script": {
+    "preload_title": "تلقيم نصوص مسبقة للمزامنة التلقائية",
+    "preload_btn": "تلقيم نصوص",
+    "script_hint": "الصق هنا نصوص الآيات أو الأحاديث أو الفصول (سطر لكل فقرة)...",
+    "lines_loaded": "تم تحميل {count} نصاً جاهزاً للربط التلقائي",
+    "current_next": "النص التالي للربط:",
+    "active_verse": "الآية / النص الحالي للتسجيل",
+    "prev": "الرجوع للسطر السابق",
+    "skip": "تخطي هذا السطر",
+    "clear": "إلغاء التلقيم",
+    "load": "اعتماد النصوص",
+    "import_txt": "استيراد من ملف نصي (.txt)",
+    "line_count": "{count} سطر",
+    "auto_link_info": "عند التسجيل (Enter)، سيتم ربط كل سطر بالتوقيت بالترتيب آلياً.",
+    "remaining": "{count} متبقي",
+    "progress": "الآية {current} من {total}"
+  },
+
+  "export_formats": {
+    "title": "خيارات التصدير للمطورين",
+    "json": "ملف JSON الشامل (Schema v2)",
+    "dart": "كود دارت مباشر (seed_data.dart)",
+    "flutter_player": "ويدجت Flutter كاملة للمزامنة (MuzaminSyncPlayer)",
+    "vtt": "ملف ترجمة WebVTT (.vtt)",
+    "srt": "ملف ترجمة SubRip (.srt)"
+  },
+
+  "file": {
+    "open_audio": "فتح ملف صوتي",
+    "no_file_selected": "لم يتم اختيار ملف صوتي",
+    "select_file_first": "اختر ملفاً صوتياً أولاً لتفعيل التسجيل",
+    "import_json": "استيراد من JSON",
+    "load_from_url": "تحميل من الرابط"
+  },
+
+  "player": {
+    "speed": "السرعة",
+    "latency_offset": "تعويض التأخير (ms)",
+    "adjust_latency_up": "زيادة (+50ms)",
+    "adjust_latency_down": "تقليل (-50ms)",
+    "play_pause": "تشغيل / إيقاف",
+    "replay_from_start": "استمع من البداية",
+    "position": "الموضع",
+    "waveform": "الموجة الصوتية",
+    "no_waveform_data": "لا توجد بيانات موجة",
+    "zoom_in": "تكبير الموجة",
+    "zoom_out": "تصغير الموجة"
+  },
+
+  "recording": {
+    "record_verse": "تسجيل الآية",
+    "start_recording": "بدء تسجيل {type}",
+    "end_recording": "إنهاء تسجيل {type} #{count}",
+    "start_verse": "بدء تسجيل الآية",
+    "end_verse": "إنهاء الآية {count}",
+    "pending_verse": "الآية {count} قيد التسجيل",
+    "pending_start": "البداية",
+    "press_enter_at_end": "اضغط Enter عند نهايتها"
+  },
+
+  "entries": {
+    "recorded_timestamps": "التوقيتات المسجلة",
+    "no_timestamps": "لا توجد توقيتات بعد",
+    "verse_number": "الآية",
+    "duration": "المدة",
+    "start_time": "البداية",
+    "end_time": "النهاية",
+    "delete_entry": "حذف الإدخال",
+    "verify_play": "تشغيل للتحقق",
+    "undo_tooltip": "تراجع عن آخر إدخال (Ctrl+Z)",
+    "delete_all_tooltip": "حذف الكل"
+  },
+
+  "export": {
+    "verses_ready": "آية جاهزة للتصدير",
+    "segments_ready": "{count} مقطع جاهز للتصدير",
+    "no_timestamps_to_export": "لا توجد توقيتات بعد لتصديرها.",
+    "enter_lesson_id": "أدخل معرّف الدرس (Lesson ID) قبل التصدير.",
+    "export_failed": "فشل التصدير:",
+    "export_success": "تم حفظ {count} آية إلى:",
+    "export_success_path": "تم تصدير الملف بنجاح إلى: {path}",
+    "lesson_id": "معرّف الدرس",
+    "lesson_id_hint": "baqarah_lesson_01",
+    "audio_url": "رابط الصوت على R2",
+    "audio_url_hint": "https://pub-xxx.r2.dev/tafsiirapp/baqarah_01.mp3"
+  },
+
+  "import": {
+    "import_success": "تم استيراد {count} آية بنجاح",
+    "import_error": "خطأ في الاستيراد",
+    "no_verses": "لا توجد آيات في الملف المستورد",
+    "file_not_found": "الملف غير موجود",
+    "invalid_json": "ملف JSON غير صالح"
+  },
+
+  "dialog": {
+    "delete_all_question": "حذف جميع التوقيتات؟",
+    "delete_all_warning": "لا يمكن التراجع عن هذا الإجراء.",
+    "delete_all": "حذف الكل"
+  },
+
+  "settings": {
+    "title": "الإعدادات",
+    "appearance": "المظهر",
+    "theme_light": "فاتح",
+    "theme_dark": "داكن",
+    "theme_system": "النظام",
+    "theme_dark_desc": "الوضع المظلم المريح للعينين",
+    "theme_light_desc": "الوضع المضيء عالي التباين",
+    "theme_system_desc": "مطابقة مظهر نظام التشغيل",
+    "latency_offset": "تعويض التأخير",
+    "latency_hint": "قيمة موجبة = الصوت يسبق النص | قيمة سالبة = النص يسبق الصوت",
+    "shortcuts_title": "اختصارات لوحة المفاتيح",
+    "reset_shortcuts": "استعادة الافتراضي",
+    "reset_all": "استعادة الافتراضي",
+    "reset_all_title": "استعادة جميع الإعدادات للافتراضي",
+    "reset_all_warning": "سيتم إعادة جميع الإعدادات (الثيم، الاختصارات، التعويض) لقيمها الافتراضية. لا يمكن التراجع.",
+    "restore_all": "استعادة الكل",
+    "change_shortcut": "تغيير اختصار",
+    "press_keys_prompt": "اضغط على المفاتيح المطلوبة...",
+    "shortcut_dialog_hint": "اضغط على Escape للإلغاء، أو Backspace للمسح",
+    "save": "حفظ",
+    "reset_shortcuts_success": "تمت استعادة الاختصارات الافتراضية",
+    "reset_all_success": "تمت استعادة جميع الإعدادات الافتراضية",
+    "actions": {
+      "play_pause": "تشغيل / إيقاف مؤقت",
+      "mark_verse": "تسجيل بداية/نهاية الآية",
+      "seek_forward_5s": "تقديم 5 ثوانٍ",
+      "seek_backward_5s": "تأخير 5 ثوانٍ",
+      "seek_forward_30s": "تقديم 30 ثانية",
+      "seek_backward_30s": "تأخير 30 ثانية",
+      "cancel_pending": "إلغاء بداية قيد التسجيل",
+      "undo": "تراجع عن آخر إدخال (Undo)",
+      "delete_all": "حذف جميع التوقيتات"
+    }
+  },
+
+  "keyboard": {
+    "shortcuts_title": "اختصارات لوحة المفاتيح",
+    "space": "Space",
+    "space_desc": "تشغيل / إيقاف مؤقت",
+    "enter": "Enter",
+    "enter_desc": "تسجيل البداية ثم النهاية",
+    "arrow_right": "→",
+    "arrow_right_desc": "تقديم 5 ثوانٍ",
+    "arrow_left": "←",
+    "arrow_left_desc": "تأخير 5 ثوانٍ",
+    "arrow_up": "↑",
+    "arrow_up_desc": "تقديم 30 ثانية",
+    "arrow_down": "↓",
+    "arrow_down_desc": "تأخير 30 ثانية",
+    "escape": "Esc",
+    "escape_desc": "إلغاء بداية قيد التسجيل",
+    "ctrl_z": "Ctrl+Z",
+    "ctrl_z_desc": "تراجع عن آخر إدخال (Undo)",
+    "delete": "Delete",
+    "delete_desc": "حذف جميع التوقيتات",
+    "switch_type": "تبديل النوع (1-5)",
+    "switch_type_desc": "1-5 = تبديل نوع المقطع (آية / حديث / فصل / ذكر / فقرة)",
+    "switch_type_hint": "اضغط 1-5 للتبديل السريع"
+  },
+
+  "shortcuts": {
+    "shortcuts_title": "اختصارات لوحة المفاتيح",
+    "space": "Space",
+    "space_desc": "تشغيل / إيقاف مؤقت",
+    "enter": "Enter",
+    "enter_desc": "تسجيل البداية ثم النهاية",
+    "arrow_right": "→",
+    "arrow_right_desc": "تقديم 5 ثوانٍ",
+    "arrow_left": "←",
+    "arrow_left_desc": "تأخير 5 ثوانٍ",
+    "arrow_up": "↑",
+    "arrow_up_desc": "تقديم 30 ثانية",
+    "arrow_down": "↓",
+    "arrow_down_desc": "تأخير 30 ثانية",
+    "escape": "Esc",
+    "escape_desc": "إلغاء بداية قيد التسجيل",
+    "ctrl_z": "Ctrl+Z",
+    "ctrl_z_desc": "تراجع عن آخر إدخال (Undo)",
+    "delete": "Delete",
+    "delete_desc": "حذف جميع التوقيتات",
+    "switch_type": "تبديل النوع (1-5)",
+    "switch_type_desc": "1-5 = تبديل نوع المقطع (آية / حديث / فصل / ذكر / فقرة)",
+    "switch_type_hint": "اضغط 1-5 للتبديل السريع"
+  },
+
+  "segment_types": {
+    "title": "نوع المقطع النشط",
+    "quran": "آية قرآنية",
+    "quran_short": "آية",
+    "hadith": "حديث نبوي",
+    "hadith_short": "حديث",
+    "chapter": "باب / فصل",
+    "chapter_short": "فصل",
+    "dhikr": "ذكر / دعاء",
+    "dhikr_short": "ذكر",
+    "custom": "فقرة خاصة",
+    "custom_short": "فقرة"
+  },
+
+  "types": {
+    "quran": "آية قرآنية",
+    "hadith": "حديث نبوي",
+    "chapter": "باب / فصل",
+    "dhikr": "ذكر / دعاء",
+    "custom": "فقرة خاصة"
+  },
+
+  "language": {
+    "select_language": "اختيار لغة الواجهة"
+  },
+
+  "filter": {
+    "all": "الكل"
+  },
+
+  "edit": {
+    "title": "تعديل المقطع",
+    "type": "نوع المقطع",
+    "number": "الرقم",
+    "page": "صفحة",
+    "set_page": "تحديد الصفحة",
+    "page_title": "تعيين رقم الصفحة الحالية",
+    "page_number": "رقم الصفحة (المصحف / الكتاب)",
+    "label": "العنوان / الوصف",
+    "label_hint": "مثال: سورة الفاتحة / باب فضل الصلاة",
+    "text_arabic": "النص العربي",
+    "text_arabic_hint": "النص العربي للآية أو الحديث..."
+  },
+
+  "guide": {
+    "dialog_title": "دليل الاستخدام ومرحباً بك في مُزامِن",
+    "tab_about": "عن المشروع والهدف",
+    "tab_workflow": "دورة العمل السريعة",
+    "tab_shortcuts": "أهم الاختصارات",
+    "tab_tips": "نصائح للدقة",
+    "about_title": "ما هو أستوديو مُزامِن؟",
+    "about_desc": "أستوديو مفتوح المصدر تم تصميمه وتطويره لخدمة القرآن الكريم وعلومه، لتوفير أداة احترافية فائقة الدقة في مزامنة التسجيلات الصوتية (تلاوات، دروس تفسير، شروح حديث) مع النصوص المكتوبة وتصديرها بصيغ إنتاجية جاهزة للتطبيقات.",
+    "features_title": "القدرات الأساسية للاستوديو",
+    "feature_1_title": "محرك مصحف المدينة (QPC V2)",
+    "feature_1_desc": "دعم كامل لخطوط مصحف المدينة النبوية (604 صفحة) بدون الحاجة لأي إنترنت.",
+    "feature_2_title": "مزامنة متعددة الأنماط",
+    "feature_2_desc": "دعم الآيات القرآنية، الأحاديث، الفصول، الأذكار، والفقرات المخصصة.",
+    "feature_3_title": "تصدير فائق الخفة",
+    "feature_3_desc": "تصدير توقيتات ذكية بحجم ~1KB مع حساب الأجزاء والصفحات آلياً.",
+    "workflow_step1_title": "1. فتح الملف الصوتي",
+    "workflow_step1_desc": "اضغط على Open audio file لاختيار ملف الدرس أو السورة (.mp3, .m4a, .wav).",
+    "workflow_step2_title": "2. جلب وتلقيم الآيات",
+    "workflow_step2_desc": "اضغط على Fetch Quran لاختيار السورة والصفحة وتحميل نصوص مصحف المدينة.",
+    "workflow_step3_title": "3. المزامنة بضغطة زر (Tap-to-Time)",
+    "workflow_step3_desc": "شغّل الصوت (Space) واضغط Enter عند بداية الآية ثم Enter مجدداً عند نهايتها.",
+    "workflow_step4_title": "4. التصدير للإنتاج",
+    "workflow_step4_desc": "اضغط Export لحفظ ملف JSON خفيف أو توليد كود Dart لتطبيق Flutter فوراً.",
+    "tip_1_title": "تعويض التأخير البشري (Latency)",
+    "tip_1_desc": "اضبط زمن رد فعلك (مثلاً 150-250ms) ليتم خصمه آلياً وبدقة من كل توقيت مسجل.",
+    "tip_2_title": "التراجع المتزامن (Undo Sync)",
+    "tip_2_desc": "الضغط على Ctrl+Z يحذف آخر مقطع ويعيد تلقيم الآية السابقة فوراً لتصحيحها.",
+    "tip_3_title": "التنقل السريع بين الآيات",
+    "tip_3_desc": "استخدم أزرار [السابق / تخطي] في الشريط العلوي لتعديل مسار الآيات التلقائي.",
+    "dont_show_again": "عدم إظهار هذه النافذة تلقائياً عند بدء التشغيل",
+    "start_btn": "ابدأ استخدام الأستوديو 🚀",
+    "close_btn": "إغلاق"
+  }
+}

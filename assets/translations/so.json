@@ -1,0 +1,310 @@
+{
+  "app_title": "Muzamin",
+  "app_subtitle": "Isku-xiraha Codka iyo Qoraalka ee Horumariyayaasha",
+  
+  "common": {
+    "cancel": "Batal",
+    "delete": "Tirtir",
+    "export": "Soo saari",
+    "import": "Soo gelid",
+    "settings": "Soojitooyin",
+    "loading": "Waa la xamaadiya...",
+    "error": "Khalad",
+    "success": "Guul",
+    "clear": "Tirtir"
+  },
+
+  "smart_split": {
+    "tooltip": "Kala-qaybinta Tooska ah ee Aamusnaanta",
+    "title": "Kala-qaybinta Tooska ah ee Hakashooyinka",
+    "desc": "Waxay falanqaysaa hakashooyinka codka waxayna si toos ah u soo saartaa calaamadaha bilowga ah.",
+    "sensitivity": "Dareenka Aamusnaanta",
+    "min_silence": "Muddada ugu yar ee Hakashada",
+    "apply_btn": "Fuli Kala-qaybinta Tooska ah",
+    "created_count": "Waxaa si guul leh loo abuuray {count} qaybood oo horudhac ah",
+    "none_detected": "Lama helin hakashooyin cad oo lagu kala qaybiyo"
+  },
+
+  "quran": {
+    "auto_fetch_title": "Ka soo qaado Aayadaha Qur'aanka (Farta Cusmaaniga)",
+    "auto_fetch_subtitle": "Si toos ah u soo deji qoraalka aayadaha iyo bogagga Musxafka",
+    "tab_by_surah": "Suuradda iyo Tirada Aayadaha",
+    "tab_by_page": "Bogga Musxafka",
+    "select_surah": "Dooro Suuradda",
+    "from_verse": "Laga bilaabo Aayadda",
+    "to_verse": "Ilaa Aayadda",
+    "mushaf_page_label": "Lambarka Bogga Musxafka (1 - 604)",
+    "fetch_btn": "Soo qaado Aayadaha",
+    "fetch_btn_short": "Soo qaado Aayado",
+    "ready_to_fetch": "Dooro suuradda kadibna riix Soo qaado Aayadaha",
+    "fetched_count": "Waxaa la soo qaaday {count} aayadood oo Farta Cusmaaniga ah",
+    "preview_placeholder": "Qoraalka aayadaha ayaa halkan lagu eegi doonaa",
+    "load_to_studio_btn": "Ku shub Istuudiyaha",
+    "loaded_success": "Si guul leh ayaa {count} aayadood loogu shubay istuudiyaha"
+  },
+
+  "script": {
+    "preload_title": "Ku shub Qoraallada Hore si Toos ah loogu xiro",
+    "preload_btn": "Ku shub Qoraallo",
+    "script_hint": "Halkan ku dheji aayadaha ama xadiisyada (khadkiiba mid)...",
+    "lines_loaded": "{count} qoraal ayaa diyaar u ah isku-xirka",
+    "current_next": "Qoraalka ku xiga ee la xiri doono:",
+    "active_verse": "Qoraalka / Aayadda hadda la duubayo",
+    "prev": "Khadkii hore",
+    "skip": "Ka bood khadkan",
+    "clear": "Tirtir Qoraallada",
+    "load": "Xaqiiji Qoraallada",
+    "import_txt": "Ka soo qaado fayl qoraal ah (.txt)",
+    "line_count": "{count} khad",
+    "auto_link_info": "Markaad riixdo (Enter), khad kasta si toos ah ayaa loogu xiri doonaa codka.",
+    "remaining": "{count} ka haray",
+    "progress": "Aayadda {current} ee {total}"
+  },
+
+  "export_formats": {
+    "title": "Dooryada Soo Saarka ee Horumariyayaasha",
+    "json": "Faylka JSON Guud (Schema v2)",
+    "dart": "Koodhka Dart (seed_data.dart)",
+    "flutter_player": "Qalabka Ciyaaryahanka Flutter ee Isku-dhafan",
+    "vtt": "Faylka WebVTT (.vtt)",
+    "srt": "Faylka SubRip (.srt)"
+  },
+
+  "file": {
+    "open_audio": "Fur faylka hadda",
+    "no_file_selected": "Faylka hadda ayaa ayan la doortay",
+    "select_file_first": "Fadlan marka hore dooro faylka codka",
+    "import_json": "Soo gali JSON",
+    "load_from_url": "Ka soo qaad URL"
+  },
+
+  "player": {
+    "speed": "Xawaaraha",
+    "latency_offset": "Dib-u-dhigga (ms)",
+    "adjust_latency_up": "Kordhi (+50ms)",
+    "adjust_latency_down": "Dhim (-50ms)",
+    "play_pause": "Ciyaari / Jooji",
+    "replay_from_start": "Ka bilow bilawga",
+    "position": "Goobta",
+    "waveform": "Mowjadda Codka",
+    "no_waveform_data": "Ma jirto xogta mowjadda",
+    "zoom_in": "Weynee Mowjadda",
+    "zoom_out": "Yaree Mowjadda"
+  },
+
+  "recording": {
+    "record_verse": "Qayd Aayadda",
+    "start_recording": "Bilow qaydinta {type}",
+    "end_recording": "Dhammee {type} #{count}",
+    "start_verse": "Bilow duubista aayadda",
+    "end_verse": "Dhammee aayadda {count}",
+    "pending_verse": "Aayadda {count} ayaa socota",
+    "pending_start": "Bilowga",
+    "press_enter_at_end": "Riix Enter marka ay dhamaato"
+  },
+
+  "entries": {
+    "recorded_timestamps": "Waqtiyada la Duubay",
+    "no_timestamps": "Wali wax waqtiyo ah ma jiraan",
+    "verse_number": "Aayadda",
+    "duration": "Muddada",
+    "start_time": "Bilaw",
+    "end_time": "Dhamaad",
+    "delete_entry": "Tirtir gelinta",
+    "verify_play": "Dhageyso si aad u hubiso",
+    "undo_tooltip": "Ka noqo kii ugu dambeeyay (Ctrl+Z)",
+    "delete_all_tooltip": "Tirtir Dhammaan"
+  },
+
+  "export": {
+    "verses_ready": "aayadood oo diyaar ah",
+    "segments_ready": "{count} qaybood oo diyaar ah",
+    "no_timestamps_to_export": "Ma jiraan waqtiyo la dhoofin karo.",
+    "enter_lesson_id": "Gali aqoonsiga casharka (Lesson ID) ka hor inta aan la soo saarin.",
+    "export_failed": "Dhoofintu way fashilantay:",
+    "export_success": "Waxaa la keydiyay {count} aayadood:",
+    "export_success_path": "Faylka si guul leh ayaa loogu dhoofiyay: {path}",
+    "lesson_id": "Aqoonsiga Casharka",
+    "lesson_id_hint": "baqarah_lesson_01",
+    "audio_url": "Xiriiriyaha Codka R2",
+    "audio_url_hint": "https://pub-xxx.r2.dev/tafsiirapp/baqarah_01.mp3"
+  },
+
+  "import": {
+    "import_success": "Si guul leh ayaa loo soo galiyay {count} aayadood",
+    "import_error": "Khalad soo galinta",
+    "no_verses": "Lama helin aayado faylka la soo galiyay",
+    "file_not_found": "Faylka lama helin",
+    "invalid_json": "Faylka JSON ma saxna"
+  },
+
+  "dialog": {
+    "delete_all_question": "Ma tirtirtaa dhammaan waqtiyada?",
+    "delete_all_warning": "Falkan dib loogama noqon karo.",
+    "delete_all": "Tirtir Dhammaan"
+  },
+
+  "settings": {
+    "title": "Soojitooyin",
+    "appearance": "Muuqaalka",
+    "theme_light": "Iftiin",
+    "theme_dark": "Gudcur",
+    "theme_system": "Nidaamka",
+    "theme_dark_desc": "Habka mugdiga ah ee indhaha u roon",
+    "theme_light_desc": "Habka iftiinka ee nadiifka ah",
+    "theme_system_desc": "U dhiganta muuqaalka nidaamkaaga",
+    "latency_offset": "Dib-u-dhigga Waqtiga",
+    "latency_hint": "Togan = Codka ayaa ka horreeya qoraalka | Taban = Qoraalka ayaa ka horreeya codka",
+    "shortcuts_title": "Toobiyeyaasha Kiiboodhka",
+    "reset_shortcuts": "Ku celi Asalkii",
+    "reset_all": "Ku celi Dhammaan Asalkii",
+    "reset_all_title": "Ku celi dhammaan dejimaha asalkii",
+    "reset_all_warning": "Dhammaan dejimaha dib ayaa loogu celin doonaa sidii hore.",
+    "restore_all": "Soo celi Dhammaan",
+    "change_shortcut": "Beddel Toobiyaha",
+    "press_keys_prompt": "Riix furayaasha aad rabto...",
+    "shortcut_dialog_hint": "Riix Escape si aad u joojiso, ama Backspace si aad u tirtirto",
+    "save": "Keydi",
+    "reset_shortcuts_success": "Toobiyeyaasha dib ayaa loogu celiyay sidii hore",
+    "reset_all_success": "Dhammaan habaynta dib ayaa loogu celiyay sidii hore",
+    "actions": {
+      "play_pause": "Ciyaari / Jooji",
+      "mark_verse": "Qayd Bilawga/Dhamaadka Aayadda",
+      "seek_forward_5s": "Horay u wad 5s",
+      "seek_backward_5s": "Dib u celi 5s",
+      "seek_forward_30s": "Horay u wad 30s",
+      "seek_backward_30s": "Dib u celi 30s",
+      "cancel_pending": "Jooji duubista socota",
+      "undo": "Ka noqo kii u dambeeyay",
+      "delete_all": "Tirtir dhammaan waqtiyada"
+    }
+  },
+
+  "keyboard": {
+    "shortcuts_title": "Toobiyeyaasha Kiiboodhka",
+    "space": "Space",
+    "space_desc": "Ciyaari / Jooji",
+    "enter": "Enter",
+    "enter_desc": "Calaamadee Bilowga ka dibna Dhammaadka",
+    "arrow_right": "→",
+    "arrow_right_desc": "Horay u soco 5 ilbiriqsi",
+    "arrow_left": "←",
+    "arrow_left_desc": "Dib u noqo 5 ilbiriqsi",
+    "arrow_up": "↑",
+    "arrow_up_desc": "Horay u soco 30 ilbiriqsi",
+    "arrow_down": "↓",
+    "arrow_down_desc": "Dib u noqo 30 ilbiriqsi",
+    "escape": "Esc",
+    "escape_desc": "Kala noqo calaamadeynta socota",
+    "ctrl_z": "Ctrl+Z",
+    "ctrl_z_desc": "Ka noqo gelintii u dambaysay",
+    "delete": "Delete",
+    "delete_desc": "Tirtir dhammaan waqtiyada",
+    "switch_type": "Beddel Nooca (1-5)",
+    "switch_type_desc": "1-5 = Beddel nooca qaybta (Aayad / Xadiis / Cutub / Dikri / Gaar)",
+    "switch_type_hint": "Riix 1-5 si aad si dhakhso ah ugu beddesho"
+  },
+
+  "shortcuts": {
+    "shortcuts_title": "Furayaasha Fududeynta",
+    "space": "Space",
+    "space_desc": "Daar / Jooji Codka",
+    "enter": "Enter",
+    "enter_desc": "Diiwaangeli Bilowga kadibna Dhammaadka",
+    "arrow_right": "→",
+    "arrow_right_desc": "Horay u soco 5 ilbiriqsi",
+    "arrow_left": "←",
+    "arrow_left_desc": "Dib u noqo 5 ilbiriqsi",
+    "arrow_up": "↑",
+    "arrow_up_desc": "Horay u soco 30 ilbiriqsi",
+    "arrow_down": "↓",
+    "arrow_down_desc": "Dib u noqo 30 ilbiriqsi",
+    "escape": "Esc",
+    "escape_desc": "Batal bilowga socda",
+    "ctrl_z": "Ctrl+Z",
+    "ctrl_z_desc": "Ka noqo wixii ugu dambeeyay",
+    "delete": "Delete",
+    "delete_desc": "Tirtir dhammaan diiwaanka",
+    "switch_type": "Bedel Nooca (1-5)",
+    "switch_type_desc": "1-5 = Bedel nooca qaybta (Aayad / Xadiis / Cutub / Dhikr / Qoraal)",
+    "switch_type_hint": "Riix 1-5 si aad u bedesho"
+  },
+
+  "segment_types": {
+    "title": "Nooca Qaybta Socota",
+    "quran": "Aayad Quraan",
+    "quran_short": "Quraan",
+    "hadith": "Xadiis Nabawi",
+    "hadith_short": "Xadiis",
+    "chapter": "Cutub / Qayb",
+    "chapter_short": "Cutub",
+    "dhikr": "Dikri / Duco",
+    "dhikr_short": "Dikri",
+    "custom": "Qodob Gaar ah",
+    "custom_short": "Gaar"
+  },
+
+  "types": {
+    "quran": "Aayad Quraan",
+    "hadith": "Xadiis Nabawi",
+    "chapter": "Cutub / Qayb",
+    "dhikr": "Dikri / Duco",
+    "custom": "Qodob Gaar ah"
+  },
+
+  "language": {
+    "select_language": "Dooro Luqadda Muuqaalka"
+  },
+
+  "filter": {
+    "all": "Dhammaan"
+  },
+
+  "edit": {
+    "title": "Wax ka beddel Qaybta",
+    "type": "Nooca Qaybta",
+    "number": "Lambarka",
+    "page": "Bogga",
+    "set_page": "Dooro Bogga",
+    "page_title": "Geli Lambarka Bogga ee Socda",
+    "page_number": "Lambarka Bogga (Musxafka / Buugga)",
+    "label": "Cinwaanka / Sharaxaada",
+    "label_hint": "Tusaale: Suuradda Al-Baqarah / Cutubka Salaadda",
+    "text_arabic": "Qoraalka Carabiga",
+    "text_arabic_hint": "Qoraalka carabiga ee aayadda ama xadiiska..."
+  },
+
+  "guide": {
+    "dialog_title": "Tilmaamaha Isticmaalka & Soo Dhawoow Muzamin",
+    "tab_about": "Ku saabsan Mashruuca",
+    "tab_workflow": "Habka Shaqada",
+    "tab_shortcuts": "Furayaasha Fududeynta",
+    "tab_tips": "Talooyin Muhiim ah",
+    "about_title": "Waa maxay Istuudiyaha Muzamin?",
+    "about_desc": "Istuudiyo furan oo loogu talagalay u adeegida Qur'aanka Kariimka iyo culuumtiisa, si loo helo saxnaan sare oo lagu waafajiyo codadka iyo qoraallada.",
+    "features_title": "Awoodaha Muhiimka ah",
+    "feature_1_title": "Matoorka Musxafka Madiina (QPC V2)",
+    "feature_1_desc": "Taageero buuxda oo offline ah oo loogu talagalay 604 bog oo farta rasmiga ah.",
+    "feature_2_title": "Isku-xirka Noocyada Badan",
+    "feature_2_desc": "Taageerada aayadaha, xadiisyada, cutubyada, iyo qoraallada gaarka ah.",
+    "feature_3_title": "Soo Saaris Fudud",
+    "feature_3_desc": "Faylal fudud (~1KB) oo xisaabiya Juska iyo Bogagga si toos ah.",
+    "workflow_step1_title": "1. Fur Faylka Codka",
+    "workflow_step1_desc": "Riix Open audio file si aad u doorato codka (.mp3, .m4a, .wav).",
+    "workflow_step2_title": "2. Soo Qaado Aayadaha",
+    "workflow_step2_desc": "Riix Fetch Quran si aad u doorato suuradda iyo bogga Musxafka.",
+    "workflow_step3_title": "3. Isku-xirka Tooska ah (Tap-to-Time)",
+    "workflow_step3_desc": "Daar codka (Space), riix Enter bilowga aayadda iyo Enter dhammaadkeeda.",
+    "workflow_step4_title": "4. Soo Saaris Diyaar ah",
+    "workflow_step4_desc": "Riix Export si aad u hesho JSON ama Dart code loogu talagalay Flutter.",
+    "tip_1_title": "Ballaarinta Saxnaanta Codka",
+    "tip_1_desc": "Hagaaji waqtiga dib-u-dhaca (150-250ms) si looga jaro waqtiga la diiwaangeliyey.",
+    "tip_2_title": "Ka Noqoshada Tooska ah (Ctrl+Z)",
+    "tip_2_desc": "Riixidda Ctrl+Z waxay tirtiraysaa qaybtii ugu dambaysay waxayna soo celinaysaa aayadii hore.",
+    "tip_3_title": "U Kala Gudubka Aayadaha",
+    "tip_3_desc": "Isticmaal badhamada [Hore / Ka bood] si aad u maamusho aayadaha.",
+    "dont_show_again": "Ha soo bandhigin daaqadan si toos ah bilowga",
+    "start_btn": "Bilow Isticmaalka Istuudiyaha 🚀",
+    "close_btn": "Xir"
+  }
+}

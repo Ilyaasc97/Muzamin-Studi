@@ -1,0 +1,310 @@
+{
+  "app_title": "Muzamin",
+  "app_subtitle": "Islamic Audio-Text Synchronization Studio for Developers",
+  
+  "common": {
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "export": "Export",
+    "import": "Import",
+    "settings": "Settings",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "clear": "Clear"
+  },
+
+  "smart_split": {
+    "tooltip": "Smart Silence & Pause Auto-Detection",
+    "title": "Auto-Split by Pauses",
+    "desc": "Analyzes waveform silence dips and automatically generates draft timestamps.",
+    "sensitivity": "Silence Sensitivity",
+    "min_silence": "Min Pause Duration",
+    "apply_btn": "Apply Smart Split",
+    "created_count": "Successfully created {count} draft segments",
+    "none_detected": "No distinct pauses detected with current settings"
+  },
+
+  "quran": {
+    "auto_fetch_title": "Fetch Quranic Verses (Uthmani Script)",
+    "auto_fetch_subtitle": "Accurately download verse texts with page numbers and load directly to studio",
+    "tab_by_surah": "By Surah & Verse Range",
+    "tab_by_page": "By Mushaf Page",
+    "select_surah": "Select Surah",
+    "from_verse": "From Verse",
+    "to_verse": "To Verse",
+    "mushaf_page_label": "Mushaf Page Number (1 - 604)",
+    "fetch_btn": "Fetch Verses",
+    "fetch_btn_short": "Fetch Quran",
+    "ready_to_fetch": "Select Surah & range, then click Fetch Verses",
+    "fetched_count": "Fetched {count} verses in Uthmani script",
+    "preview_placeholder": "Verse text preview will appear here before loading into studio",
+    "load_to_studio_btn": "Load Verses into Studio",
+    "loaded_success": "Successfully loaded {count} Quran verses into script queue"
+  },
+
+  "script": {
+    "preload_title": "Pre-load Script for Auto-Linking",
+    "preload_btn": "Pre-load Script",
+    "script_hint": "Paste verses, Hadiths, or chapters here (one per line)...",
+    "lines_loaded": "{count} lines loaded and ready for auto-linking",
+    "current_next": "Next line to link:",
+    "active_verse": "Active Text / Ayah to Record",
+    "prev": "Previous line",
+    "skip": "Skip this line",
+    "clear": "Clear Script",
+    "load": "Apply Script",
+    "import_txt": "Import from text file (.txt)",
+    "line_count": "{count} lines",
+    "auto_link_info": "Upon recording (Enter), each line is automatically attached in sequence.",
+    "remaining": "{count} remaining",
+    "progress": "Ayah {current} of {total}"
+  },
+
+  "export_formats": {
+    "title": "Developer Export Options",
+    "json": "Master JSON (Schema v2)",
+    "dart": "Dart Seed Code (seed_data.dart)",
+    "flutter_player": "Ready Flutter Sync Player Widget",
+    "vtt": "WebVTT Subtitle (.vtt)",
+    "srt": "SubRip Subtitle (.srt)"
+  },
+
+  "file": {
+    "open_audio": "Open audio file",
+    "no_file_selected": "No audio file selected",
+    "select_file_first": "Select an audio file first to start recording",
+    "import_json": "Import from JSON",
+    "load_from_url": "Load from URL"
+  },
+
+  "player": {
+    "speed": "Speed",
+    "latency_offset": "Latency Offset (ms)",
+    "adjust_latency_up": "Increase (+50ms)",
+    "adjust_latency_down": "Decrease (-50ms)",
+    "play_pause": "Play / Pause",
+    "replay_from_start": "Replay from start",
+    "position": "Position",
+    "waveform": "Waveform",
+    "no_waveform_data": "No waveform data available",
+    "zoom_in": "Zoom In Waveform",
+    "zoom_out": "Zoom Out Waveform"
+  },
+
+  "recording": {
+    "record_verse": "Record Verse",
+    "start_recording": "Start {type}",
+    "end_recording": "End {type} #{count}",
+    "start_verse": "Start verse recording",
+    "end_verse": "End verse {count}",
+    "pending_verse": "Verse {count} is recording",
+    "pending_start": "Start",
+    "press_enter_at_end": "Press Enter at the end"
+  },
+
+  "entries": {
+    "recorded_timestamps": "Recorded Timestamps",
+    "no_timestamps": "No timestamps yet",
+    "verse_number": "Verse",
+    "duration": "Duration",
+    "start_time": "Start",
+    "end_time": "End",
+    "delete_entry": "Delete entry",
+    "verify_play": "Play to verify",
+    "undo_tooltip": "Undo last entry (Ctrl+Z)",
+    "delete_all_tooltip": "Delete all"
+  },
+
+  "export": {
+    "verses_ready": "verses ready to export",
+    "segments_ready": "{count} segments ready to export",
+    "no_timestamps_to_export": "No timestamps to export yet.",
+    "enter_lesson_id": "Enter Lesson ID before exporting.",
+    "export_failed": "Export failed:",
+    "export_success": "Saved {count} verses to:",
+    "export_success_path": "File exported successfully to: {path}",
+    "lesson_id": "Lesson ID",
+    "lesson_id_hint": "baqarah_lesson_01",
+    "audio_url": "Audio URL on R2",
+    "audio_url_hint": "https://pub-xxx.r2.dev/tafsiirapp/baqarah_01.mp3"
+  },
+
+  "import": {
+    "import_success": "Successfully imported {count} verses",
+    "import_error": "Import error",
+    "no_verses": "No verses found in imported file",
+    "file_not_found": "File not found",
+    "invalid_json": "Invalid JSON file"
+  },
+
+  "dialog": {
+    "delete_all_question": "Delete all timestamps?",
+    "delete_all_warning": "This action cannot be undone.",
+    "delete_all": "Delete All"
+  },
+
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "theme_light": "Light",
+    "theme_dark": "Dark",
+    "theme_system": "System",
+    "theme_dark_desc": "Eye-friendly dark studio mode",
+    "theme_light_desc": "High-contrast clean light mode",
+    "theme_system_desc": "Match operating system appearance",
+    "latency_offset": "Latency Offset",
+    "latency_hint": "Positive = Audio precedes text | Negative = Text precedes audio",
+    "shortcuts_title": "Keyboard Shortcuts",
+    "reset_shortcuts": "Reset to Default",
+    "reset_all": "Reset All to Default",
+    "reset_all_title": "Reset all settings to default",
+    "reset_all_warning": "All settings (theme, shortcuts, latency) will be reset to default values. This cannot be undone.",
+    "restore_all": "Restore All",
+    "change_shortcut": "Change Shortcut",
+    "press_keys_prompt": "Press desired keys on your keyboard...",
+    "shortcut_dialog_hint": "Press Escape to cancel, or Backspace to clear",
+    "save": "Save",
+    "reset_shortcuts_success": "Shortcuts reset to defaults",
+    "reset_all_success": "All settings restored to defaults",
+    "actions": {
+      "play_pause": "Play / Pause",
+      "mark_verse": "Record Verse Start/End",
+      "seek_forward_5s": "Seek forward 5s",
+      "seek_backward_5s": "Seek backward 5s",
+      "seek_forward_30s": "Seek forward 30s",
+      "seek_backward_30s": "Seek backward 30s",
+      "cancel_pending": "Cancel pending recording",
+      "undo": "Undo last entry",
+      "delete_all": "Delete all timestamps"
+    }
+  },
+
+  "keyboard": {
+    "shortcuts_title": "Keyboard Shortcuts",
+    "space": "Space",
+    "space_desc": "Play / Pause",
+    "enter": "Enter",
+    "enter_desc": "Mark Start then End",
+    "arrow_right": "→",
+    "arrow_right_desc": "Seek forward 5s",
+    "arrow_left": "←",
+    "arrow_left_desc": "Seek backward 5s",
+    "arrow_up": "↑",
+    "arrow_up_desc": "Seek forward 30s",
+    "arrow_down": "↓",
+    "arrow_down_desc": "Seek backward 30s",
+    "escape": "Esc",
+    "escape_desc": "Cancel pending mark",
+    "ctrl_z": "Ctrl+Z",
+    "ctrl_z_desc": "Undo last entry",
+    "delete": "Delete",
+    "delete_desc": "Delete all timestamps",
+    "switch_type": "Switch Type (1-5)",
+    "switch_type_desc": "1-5 = Switch segment type (Quran / Hadith / Chapter / Dhikr / Custom)",
+    "switch_type_hint": "Press 1-5 to quick switch"
+  },
+
+  "shortcuts": {
+    "shortcuts_title": "Keyboard Shortcuts",
+    "space": "Space",
+    "space_desc": "Play / Pause Audio",
+    "enter": "Enter",
+    "enter_desc": "Mark Start then End (Tap-to-Time)",
+    "arrow_right": "→",
+    "arrow_right_desc": "Seek Forward 5s",
+    "arrow_left": "←",
+    "arrow_left_desc": "Seek Backward 5s",
+    "arrow_up": "↑",
+    "arrow_up_desc": "Seek Forward 30s",
+    "arrow_down": "↓",
+    "arrow_down_desc": "Seek Backward 30s",
+    "escape": "Esc",
+    "escape_desc": "Cancel Pending Start",
+    "ctrl_z": "Ctrl+Z",
+    "ctrl_z_desc": "Undo Last Entry (Sync)",
+    "delete": "Delete",
+    "delete_desc": "Delete All Timestamps",
+    "switch_type": "Switch Type (1-5)",
+    "switch_type_desc": "1-5 = Switch segment type (Quran / Hadith / Chapter / Dhikr / Custom)",
+    "switch_type_hint": "Press 1-5 to quick switch"
+  },
+
+  "segment_types": {
+    "title": "Active Segment Type",
+    "quran": "Quran Verse",
+    "quran_short": "Quran",
+    "hadith": "Prophetic Hadith",
+    "hadith_short": "Hadith",
+    "chapter": "Chapter / Section",
+    "chapter_short": "Chapter",
+    "dhikr": "Dhikr / Dua",
+    "dhikr_short": "Dhikr",
+    "custom": "Custom Paragraph",
+    "custom_short": "Custom"
+  },
+
+  "types": {
+    "quran": "Quran Verse",
+    "hadith": "Prophetic Hadith",
+    "chapter": "Chapter / Section",
+    "dhikr": "Dhikr / Dua",
+    "custom": "Custom Paragraph"
+  },
+
+  "language": {
+    "select_language": "Select Display Language"
+  },
+
+  "filter": {
+    "all": "All"
+  },
+
+  "edit": {
+    "title": "Edit Segment",
+    "type": "Segment Type",
+    "number": "Number",
+    "page": "Page",
+    "set_page": "Set Page",
+    "page_title": "Set Current Page Number",
+    "page_number": "Page Number (Mushaf / Book)",
+    "label": "Title / Label",
+    "label_hint": "e.g., Surah Al-Baqarah / Chapter of Prayer",
+    "text_arabic": "Arabic Text",
+    "text_arabic_hint": "Arabic text for verse or hadith..."
+  },
+
+  "guide": {
+    "dialog_title": "User Guide & Welcome to Muzamin",
+    "tab_about": "About & Purpose",
+    "tab_workflow": "Quick Workflow",
+    "tab_shortcuts": "Key Shortcuts",
+    "tab_tips": "Pro Tips",
+    "about_title": "What is Muzamin Studio?",
+    "about_desc": "An open-source studio crafted for Quranic and Islamic apps, providing ultra-precise audio-text synchronization (recitations, tafsir lessons, hadith explanations) and production-ready exports.",
+    "features_title": "Key Capabilities",
+    "feature_1_title": "Madinah Mushaf Engine (QPC V2)",
+    "feature_1_desc": "Full offline support for King Fahd Complex 604-page glyph fonts.",
+    "feature_2_title": "Multi-Segment Synchronization",
+    "feature_2_desc": "Support for Quran verses, Hadiths, Chapters, Dhikr, and Custom paragraphs.",
+    "feature_3_title": "Ultra-Lightweight Export",
+    "feature_3_desc": "Smart ~1KB sync files with auto-calculated Juz and Page ranges.",
+    "workflow_step1_title": "1. Open Audio File",
+    "workflow_step1_desc": "Click Open audio file to choose your lesson or recitation (.mp3, .m4a, .wav).",
+    "workflow_step2_title": "2. Fetch & Preload Verses",
+    "workflow_step2_desc": "Click Fetch Quran to choose Surah and Page with authentic Madinah text.",
+    "workflow_step3_title": "3. Tap-to-Time Synchronization",
+    "workflow_step3_desc": "Play audio (Space), press Enter at the verse start and Enter again at the end.",
+    "workflow_step4_title": "4. Production Export",
+    "workflow_step4_desc": "Click Export to save lightweight JSON or instant Dart seed code for Flutter.",
+    "tip_1_title": "Human Latency Compensation",
+    "tip_1_desc": "Set your reaction offset (e.g., 150-250ms) to be automatically deducted from recorded times.",
+    "tip_2_title": "Undo Synchronization (Ctrl+Z)",
+    "tip_2_desc": "Pressing Ctrl+Z removes the last entry and rewinds the verse queue for immediate correction.",
+    "tip_3_title": "Fast Verse Navigation",
+    "tip_3_desc": "Use [Prev / Skip] buttons in the top bar to adjust the automated verse progression.",
+    "dont_show_again": "Don't show this window automatically on startup",
+    "start_btn": "Get Started with Studio 🚀",
+    "close_btn": "Close"
+  }
+}

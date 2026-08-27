@@ -7,7 +7,7 @@
 #endif
 #define MyAppPublisher "Tafsiir App"
 #define MyAppURL "https://github.com/Ilyaasc97/Muzamin-Studi"
-#define MyAppExeName "Muzamin Studio.exe"
+#define MyAppExeName "MuzaminStudio.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.

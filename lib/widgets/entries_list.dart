@@ -11,18 +11,8 @@ import 'segment_edit_dialog.dart';
 Future<void> _handlePlayEntry(
   TimingSession session,
   TimingEntry entry,
-  bool isCurrent,
 ) async {
-  if (isCurrent && session.player.playing) {
-    await session.player.pause();
-    return;
-  }
-  final targetMs = entry.startMs;
-  final currentMs = session.player.position.inMilliseconds;
-  await session.seekRelative(targetMs - currentMs);
-  if (!session.player.playing) {
-    await session.player.play();
-  }
+  await session.playEntryPreview(entry);
 }
 
 class EntriesList extends StatefulWidget {
@@ -92,20 +82,23 @@ class _EntriesListState extends State<EntriesList> {
                               const SizedBox(height: 6),
                           itemBuilder: (BuildContext context, int index) {
                             final TimingEntry entry = displayedEntries[index];
-                            final bool isCurrent =
-                                currentPosMs >= entry.startMs &&
-                                    currentPosMs <= entry.endMs;
+                            final bool isPlayingPreview =
+                                widget.session.previewingEntryId == entry.id &&
+                                    widget.session.player.playing;
+                            final bool isCurrent = isPlayingPreview ||
+                                (currentPosMs >= entry.startMs &&
+                                    currentPosMs <= entry.endMs);
 
                             return _EntryTile(
                               entry: entry,
                               isCurrent: isCurrent,
-                              isPlaying: isCurrent && widget.session.player.playing,
+                              isPlaying: isPlayingPreview ||
+                                  (isCurrent && widget.session.player.playing),
                               onDelete: () =>
                                   widget.session.deleteEntry(entry.id),
                               onPlay: () => _handlePlayEntry(
                                 widget.session,
                                 entry,
-                                isCurrent,
                               ),
                               onEdit: () async {
                                 final updated = await showDialog<TimingEntry>(
@@ -130,8 +123,27 @@ class _EntriesListState extends State<EntriesList> {
   }
 
   Widget _buildFilterBar(List<TimingEntry> entries) {
+    final scheme = Theme.of(context).colorScheme;
+    final isLight = Theme.of(context).brightness == Brightness.light;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      decoration: BoxDecoration(
+        color: scheme.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: scheme.outlineVariant.withValues(alpha: isLight ? 0.35 : 0.25),
+            width: 1,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isLight ? 0.05 : 0.15),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -160,6 +172,36 @@ class _EntriesListState extends State<EntriesList> {
                 ),
               );
             }),
+            const SizedBox(width: 6),
+            ActionChip(
+              avatar: Icon(
+                widget.session.isPreviewLoop
+                    ? Icons.repeat_on_rounded
+                    : Icons.repeat_rounded,
+                size: 15,
+                color: widget.session.isPreviewLoop
+                    ? scheme.primary
+                    : Theme.of(context).hintColor,
+              ),
+              label: Text(
+                'entries.loop_preview'.tr(),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: widget.session.isPreviewLoop
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                  color: widget.session.isPreviewLoop ? scheme.primary : null,
+                ),
+              ),
+              backgroundColor: widget.session.isPreviewLoop
+                  ? scheme.primaryContainer.withValues(alpha: 0.35)
+                  : null,
+              side: widget.session.isPreviewLoop
+                  ? BorderSide(color: scheme.primary.withValues(alpha: 0.5))
+                  : null,
+              onPressed: () => widget.session.togglePreviewLoop(),
+              tooltip: 'entries.loop_preview_tooltip'.tr(),
+            ),
           ],
         ),
       ),
@@ -181,38 +223,75 @@ class _PendingBanner extends StatelessWidget {
         final scheme = Theme.of(context).colorScheme;
         final type = session.activeType;
 
-        return Card(
-          margin: const EdgeInsets.fromLTRB(14, 4, 14, 4),
-          color: scheme.errorContainer,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: BorderSide(color: scheme.error.withValues(alpha: 0.6)),
+        return Container(
+          decoration: BoxDecoration(
+            color: scheme.surface,
+            border: Border(
+              bottom: BorderSide(
+                color: scheme.error.withValues(alpha: 0.3),
+                width: 1,
+              ),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: scheme.error.withValues(alpha: 0.08),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            child: Row(
-              children: <Widget>[
-                Icon(Icons.radio_button_checked_rounded,
-                    color: scheme.onErrorContainer, size: 20),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    '${type.nameKey.tr()} #${session.nextVerse} قيد التسجيل — '
-                    'البداية ${TimingEntry.formatTime(session.pendingStartMs ?? 0)}. '
-                    '${'recording.press_enter_at_end'.tr()}.',
-                    style: TextStyle(
-                      color: scheme.onErrorContainer,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 13,
+          child: Card(
+            margin: const EdgeInsets.fromLTRB(14, 6, 14, 6),
+            color: scheme.errorContainer,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: BorderSide(color: scheme.error.withValues(alpha: 0.6)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              child: Row(
+                children: <Widget>[
+                  Icon(Icons.radio_button_checked_rounded,
+                      color: scheme.onErrorContainer, size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'recording.pending_banner'.tr(namedArgs: {
+                        'type': type.nameKey.tr(),
+                        'count': session.nextVerse.toString(),
+                        'start': TimingEntry.formatTime(session.pendingStartMs ?? 0),
+                        'hint': 'recording.press_enter_at_end'.tr(),
+                      }),
+                      style: TextStyle(
+                        color: scheme.onErrorContainer,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 13,
+                      ),
                     ),
+                  ),
+                const SizedBox(width: 6),
+                IconButton(
+                  tooltip: 'recording.cancel_tooltip'.tr(),
+                  visualDensity: VisualDensity.compact,
+                  style: IconButton.styleFrom(
+                    backgroundColor: scheme.error.withValues(alpha: 0.15),
+                    padding: const EdgeInsets.all(6),
+                    minimumSize: const Size(28, 28),
+                  ),
+                  onPressed: () => session.cancelPendingStart(),
+                  icon: Icon(
+                    Icons.close_rounded,
+                    color: scheme.onErrorContainer,
+                    size: 16,
                   ),
                 ),
               ],
             ),
           ),
-        );
-      },
-    );
+        ),
+      );
+    },
+  );
   }
 }
 
@@ -228,47 +307,99 @@ class _EmptyPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final isLight = Theme.of(context).brightness == Brightness.light;
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Container(
-              padding: const EdgeInsets.all(18),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
                 shape: BoxShape.circle,
+                color: scheme.surfaceContainerHighest.withValues(alpha: isLight ? 0.7 : 0.4),
+                border: Border.all(
+                  color: scheme.outlineVariant.withValues(alpha: isLight ? 0.6 : 0.3),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: scheme.primary.withValues(alpha: 0.08),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
               child: Icon(
                 isFiltered
                     ? Icons.filter_alt_off_outlined
-                    : Icons.playlist_add_check_rounded,
-                size: 40,
-                color: scheme.outline,
+                    : Icons.playlist_add_check_circle_outlined,
+                size: 44,
+                color: isFiltered ? scheme.outline : scheme.primary.withValues(alpha: 0.8),
               ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
             Text(
               isFiltered
-                  ? 'لا توجد عناصر مطابقة للتصفية'
+                  ? 'filter.no_results'.tr()
                   : 'entries.no_timestamps'.tr(),
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: scheme.onSurface,
                   ),
             ),
-            const SizedBox(height: 6),
-            Text(
-              hasFile
-                  ? '${'keyboard.enter'.tr()} = ${'keyboard.enter_desc'.tr()}'
-                  : 'file.select_file_first'.tr(),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).hintColor,
+            const SizedBox(height: 10),
+            if (hasFile)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: scheme.primaryContainer.withValues(alpha: isLight ? 0.35 : 0.2),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: scheme.primary.withValues(alpha: 0.3),
                   ),
-            ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: scheme.primary,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        'Enter ↵',
+                        style: TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.bold,
+                          color: scheme.onPrimary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'keyboard.enter_desc'.tr(),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: scheme.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Text(
+                'file.select_file_first'.tr(),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).hintColor,
+                      fontSize: 12,
+                    ),
+              ),
           ],
         ),
       ),
@@ -301,25 +432,31 @@ class _EntryTile extends StatelessWidget {
     final typeColor = entry.type.colorFor(brightness);
     final typeBg = entry.type.bgBadgeFor(brightness);
 
-    return Card(
-      margin: EdgeInsets.zero,
-      elevation: isCurrent ? 1 : 0,
-      color: isCurrent
-          ? (isLight ? scheme.primaryContainer.withValues(alpha: 0.4) : typeColor.withValues(alpha: 0.15))
-          : scheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(
+    return Stack(
+      children: [
+        Card(
+          margin: EdgeInsets.zero,
+          elevation: isCurrent ? 1 : 0,
           color: isCurrent
-              ? (isLight ? scheme.primary : typeColor)
-              : scheme.outlineVariant.withValues(alpha: isLight ? 0.6 : 0.3),
-          width: isCurrent ? 1.5 : 1,
-        ),
-      ),
-      child: ListTile(
-        dense: true,
-        onTap: onPlay,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+              ? (isLight ? scheme.primaryContainer.withValues(alpha: 0.4) : typeColor.withValues(alpha: 0.15))
+              : scheme.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(
+              color: isCurrent
+                  ? (isLight ? scheme.primary : typeColor)
+                  : scheme.outlineVariant.withValues(alpha: isLight ? 0.6 : 0.3),
+              width: isCurrent ? 1.5 : 1,
+            ),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: ListTile(
+            dense: true,
+            onTap: onPlay,
+            contentPadding: EdgeInsets.only(
+              left: isCurrent ? 14 : 10,
+              right: 10, top: 2, bottom: 2,
+            ),
         leading: Container(
           width: 36,
           height: 36,
@@ -430,18 +567,20 @@ class _EntryTile extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              tooltip: 'تعديل',
+              tooltip: 'entries.edit_tooltip'.tr(),
               onPressed: onEdit,
               icon: const Icon(Icons.edit_outlined, size: 18),
             ),
             IconButton(
-              tooltip: 'entries.verify_play'.tr(),
+              tooltip: isPlaying
+                  ? 'entries.verify_pause'.tr()
+                  : 'entries.verify_play'.tr(),
               onPressed: onPlay,
               icon: Icon(
                 isPlaying
                     ? Icons.pause_circle_filled_rounded
                     : Icons.play_circle_outline_rounded,
-                color: typeColor,
+                color: isPlaying ? scheme.primary : typeColor,
                 size: 22,
               ),
             ),
@@ -454,6 +593,25 @@ class _EntryTile extends StatelessWidget {
           ],
         ),
       ),
+    ),
+        // شريط مؤشر متحرك على اليسار للعنصر النشط حالياً
+        Positioned(
+          left: 1.5,
+          top: 1.5,
+          bottom: 1.5,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: isCurrent ? 3 : 0,
+            decoration: BoxDecoration(
+              color: typeColor,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(8.5),
+                bottomLeft: Radius.circular(8.5),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

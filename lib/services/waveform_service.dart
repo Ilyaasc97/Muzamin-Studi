@@ -125,8 +125,7 @@ class WaveformService extends ChangeNotifier {
           sumSquares += sample * sample;
         }
         final rms = math.sqrt(sumSquares / buffer.length);
-        final peak = (rms * 2.2).clamp(0.08, 0.95);
-        peaks.add(peak);
+        peaks.add(rms);
       }
     } finally {
       await raf.close();
@@ -134,7 +133,22 @@ class WaveformService extends ChangeNotifier {
 
     if (peaks.length < points) {
       final remaining = points - peaks.length;
-      peaks.addAll(List.filled(remaining, 0.1));
+      peaks.addAll(List.filled(remaining, 0.05));
+    }
+
+    // تعزيز التباين الديناميكي (Dynamic Contrast Enhancement) وإبراز فترات الصمت والسكتات
+    if (peaks.isNotEmpty) {
+      final double minVal = peaks.reduce(math.min);
+      final double maxVal = peaks.reduce(math.max);
+      final double range = maxVal - minVal;
+      if (range > 0.0001) {
+        for (int i = 0; i < peaks.length; i++) {
+          final double normalized = (peaks[i] - minVal) / range;
+          // منحنى أسي غير خطي لتفريغ الهدوء ورفع القمم الصوتية بوضوح
+          final double shaped = math.pow(normalized, 1.8).toDouble();
+          peaks[i] = (shaped * 0.88 + 0.06).clamp(0.06, 0.95);
+        }
+      }
     }
 
     return _smoothPeaks(peaks);

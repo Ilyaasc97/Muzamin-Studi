@@ -27,8 +27,23 @@ class SessionMetadataCard extends StatefulWidget {
 class _SessionMetadataCardState extends State<SessionMetadataCard> {
   Future<void> _pickAudioFile() async {
     final lessonId = await widget.session.pickAndLoadAudio();
+    if (!mounted) return;
     if (lessonId != null && lessonId.isNotEmpty) {
       widget.lessonIdController.text = lessonId;
+    } else if (widget.session.lastError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline_rounded, color: Colors.white, size: 18),
+              const SizedBox(width: 8),
+              Expanded(child: Text(widget.session.lastError!)),
+            ],
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
@@ -113,8 +128,24 @@ class _SessionMetadataCardState extends State<SessionMetadataCard> {
                 widget.audioUrlController.text = url;
                 Navigator.pop(ctx);
                 final lessonId = await widget.session.loadRemoteUrl(url);
+                if (!mounted) return;
                 if (lessonId != null && lessonId.isNotEmpty) {
                   widget.lessonIdController.text = lessonId;
+                } else if (widget.session.lastError != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          const Icon(Icons.error_outline_rounded, color: Colors.white, size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(widget.session.lastError!)),
+                        ],
+                      ),
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                      behavior: SnackBarBehavior.floating,
+                      duration: const Duration(seconds: 5),
+                    ),
+                  );
                 }
               }
             },
@@ -215,25 +246,29 @@ class _SessionMetadataCardState extends State<SessionMetadataCard> {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   alignment: WrapAlignment.spaceBetween,
                   children: [
-                    // زر فتح الملف والاستيراد وتلقيم النصوص
+                    // زر فتح الملف والجلب وتلقيم النصوص
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         FilledButton.icon(
-                          onPressed: widget.session.loading ? null : _pickAudioFile,
-                          icon: const Icon(Icons.folder_open_rounded, size: 18),
-                          label: Text('file.open_audio'.tr()),
-                          style: FilledButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          onPressed: widget.session.loading
+                              ? () => widget.session.cancelLoading()
+                              : _pickAudioFile,
+                          icon: Icon(
+                            widget.session.loading
+                                ? Icons.cancel_outlined
+                                : Icons.folder_open_rounded,
+                            size: 18,
                           ),
-                        ),
-                        const SizedBox(width: 6),
-                        OutlinedButton.icon(
-                          onPressed: widget.session.loading ? null : _importJson,
-                          icon: const Icon(Icons.file_open_outlined, size: 16),
-                          label: Text('file.import_json'.tr()),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          label: Text(
+                            widget.session.loading
+                                ? 'common.cancel'.tr()
+                                : 'file.open_audio'.tr(),
+                          ),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: widget.session.loading ? scheme.error : null,
+                            foregroundColor: widget.session.loading ? scheme.onError : null,
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                           ),
                         ),
                         const SizedBox(width: 6),
@@ -255,37 +290,125 @@ class _SessionMetadataCardState extends State<SessionMetadataCard> {
                           ),
                         ),
                         const SizedBox(width: 4),
-                        IconButton(
-                          tooltip: 'file.load_from_url'.tr(),
-                          onPressed: widget.session.loading ? null : _showUrlDialog,
-                          icon: const Icon(Icons.link_rounded, size: 20),
+                        // إجراءات ثانوية في قائمة منسدلة
+                        PopupMenuButton<String>(
+                          tooltip: 'file.more_actions'.tr(),
+                          icon: const Icon(Icons.more_vert_rounded, size: 20),
+                          onSelected: (value) {
+                            if (value == 'import') _importJson();
+                            if (value == 'url') _showUrlDialog();
+                          },
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              enabled: !widget.session.loading,
+                              value: 'import',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.file_open_outlined, size: 18),
+                                  const SizedBox(width: 10),
+                                  Text('file.import_json'.tr()),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem(
+                              enabled: !widget.session.loading,
+                              value: 'url',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.link_rounded, size: 18),
+                                  const SizedBox(width: 10),
+                                  Text('file.load_from_url'.tr()),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
 
                     // شارة الملف الصوتي المفتوح
                     Container(
-                      constraints: const BoxConstraints(maxWidth: 320),
+                      constraints: const BoxConstraints(maxWidth: 360),
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
                         color: scheme.surface,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: widget.session.hasSource
-                              ? scheme.primary.withValues(alpha: 0.5)
-                              : scheme.outlineVariant.withValues(alpha: 0.4),
+                          color: widget.session.loading
+                              ? scheme.primary
+                              : (widget.session.hasSource
+                                  ? scheme.primary.withValues(alpha: 0.5)
+                                  : scheme.outlineVariant.withValues(alpha: 0.4)),
                         ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (widget.session.loading)
+                          if (widget.session.loading) ...[
                             const SizedBox(
                               width: 14,
                               height: 14,
                               child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          else
+                            ),
+                            const SizedBox(width: 8),
+                            if (widget.session.downloadProgress != null) ...[
+                              Text(
+                                '${(widget.session.downloadProgress! * 100).toInt()}%',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: scheme.primary,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                            ],
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 150),
+                              child: Text(
+                                widget.session.loadingLabel ??
+                                    widget.session.sourceFileName ??
+                                    'common.loading'.tr(),
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Tooltip(
+                              message: 'common.cancel'.tr(),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(4),
+                                onTap: () => widget.session.cancelLoading(),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: scheme.errorContainer.withValues(alpha: 0.8),
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(
+                                      color: scheme.error.withValues(alpha: 0.3),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.close_rounded, size: 13, color: scheme.onErrorContainer),
+                                      const SizedBox(width: 3),
+                                      Text(
+                                        'common.cancel'.tr(),
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          color: scheme.onErrorContainer,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ] else ...[
                             Icon(
                               widget.session.hasSource
                                   ? Icons.graphic_eq_rounded
@@ -295,21 +418,22 @@ class _SessionMetadataCardState extends State<SessionMetadataCard> {
                                   ? scheme.primary
                                   : Theme.of(context).hintColor,
                             ),
-                          const SizedBox(width: 6),
-                          ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 240),
-                            child: Text(
-                              widget.session.sourceFileName ?? 'file.no_file_selected'.tr(),
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: widget.session.hasSource
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                                color: widget.session.hasSource ? null : Theme.of(context).hintColor,
+                            const SizedBox(width: 6),
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 240),
+                              child: Text(
+                                widget.session.sourceFileName ?? 'file.no_file_selected'.tr(),
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: widget.session.hasSource
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                  color: widget.session.hasSource ? null : Theme.of(context).hintColor,
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),
@@ -318,19 +442,21 @@ class _SessionMetadataCardState extends State<SessionMetadataCard> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        SizedBox(
-                          width: 170,
-                          height: 38,
-                          child: TextField(
-                            controller: widget.lessonIdController,
-                            textDirection: ui.TextDirection.ltr,
-                            style: const TextStyle(fontSize: 13),
-                            decoration: InputDecoration(
-                              labelText: 'export.lesson_id'.tr(),
-                              hintText: 'export.lesson_id_hint'.tr(),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                              isDense: true,
-                              prefixIcon: const Icon(Icons.badge_outlined, size: 16),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(minWidth: 140, maxWidth: 220),
+                          child: SizedBox(
+                            height: 38,
+                            child: TextField(
+                              controller: widget.lessonIdController,
+                              textDirection: ui.TextDirection.ltr,
+                              style: const TextStyle(fontSize: 13),
+                              decoration: InputDecoration(
+                                labelText: 'export.lesson_id'.tr(),
+                                hintText: 'export.lesson_id_hint'.tr(),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                isDense: true,
+                                prefixIcon: const Icon(Icons.badge_outlined, size: 16),
+                              ),
                             ),
                           ),
                         ),

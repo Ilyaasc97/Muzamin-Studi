@@ -1,6 +1,7 @@
 // lib/services/settings_service.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsService extends ChangeNotifier {
@@ -157,5 +158,70 @@ class SettingsService extends ChangeNotifier {
         .replaceAll('Enter', 'Enter')
         .replaceAll('Escape', 'Esc')
         .replaceAll('Delete', 'Del');
+  }
+
+  /// تحويل اسم المفتاح النصي إلى [LogicalKeyboardKey] المقابل
+  static LogicalKeyboardKey lookupLogicalKey(String keyString) {
+    final parts = keyString.split('+');
+    final rawKey = parts.last.trim();
+    final normalizedKey = rawKey.replaceAll(RegExp(r'\s+'), '').toLowerCase();
+    const keyMap = <String, LogicalKeyboardKey>{
+      'space': LogicalKeyboardKey.space,
+      'enter': LogicalKeyboardKey.enter,
+      'numpadenter': LogicalKeyboardKey.numpadEnter,
+      'numenter': LogicalKeyboardKey.numpadEnter,
+      'return': LogicalKeyboardKey.enter,
+      'escape': LogicalKeyboardKey.escape,
+      'esc': LogicalKeyboardKey.escape,
+      'arrowright': LogicalKeyboardKey.arrowRight,
+      'arrowleft': LogicalKeyboardKey.arrowLeft,
+      'arrowup': LogicalKeyboardKey.arrowUp,
+      'arrowdown': LogicalKeyboardKey.arrowDown,
+      'control': LogicalKeyboardKey.control,
+      'ctrl': LogicalKeyboardKey.control,
+      'shift': LogicalKeyboardKey.shift,
+      'alt': LogicalKeyboardKey.alt,
+      'meta': LogicalKeyboardKey.meta,
+      'delete': LogicalKeyboardKey.delete,
+      'del': LogicalKeyboardKey.delete,
+      'z': LogicalKeyboardKey.keyZ,
+      'x': LogicalKeyboardKey.keyX,
+      'c': LogicalKeyboardKey.keyC,
+      'v': LogicalKeyboardKey.keyV,
+      's': LogicalKeyboardKey.keyS,
+      'e': LogicalKeyboardKey.keyE,
+      'm': LogicalKeyboardKey.keyM,
+      'tab': LogicalKeyboardKey.tab,
+      'backspace': LogicalKeyboardKey.backspace,
+      'home': LogicalKeyboardKey.home,
+      'end': LogicalKeyboardKey.end,
+      'pageup': LogicalKeyboardKey.pageUp,
+      'pagedown': LogicalKeyboardKey.pageDown,
+    };
+    return keyMap[normalizedKey] ?? LogicalKeyboardKey.space;
+  }
+
+  /// استخراج اسم المفتاح المعياري من كائن [LogicalKeyboardKey]
+  static String getLogicalKeyName(LogicalKeyboardKey key) {
+    if (key == LogicalKeyboardKey.space) return 'Space';
+    if (key == LogicalKeyboardKey.enter) return 'Enter';
+    if (key == LogicalKeyboardKey.numpadEnter) return 'NumpadEnter';
+    if (key == LogicalKeyboardKey.arrowRight) return 'ArrowRight';
+    if (key == LogicalKeyboardKey.arrowLeft) return 'ArrowLeft';
+    if (key == LogicalKeyboardKey.arrowUp) return 'ArrowUp';
+    if (key == LogicalKeyboardKey.arrowDown) return 'ArrowDown';
+    if (key == LogicalKeyboardKey.escape) return 'Escape';
+    if (key == LogicalKeyboardKey.delete) return 'Delete';
+    if (key == LogicalKeyboardKey.home) return 'Home';
+    if (key == LogicalKeyboardKey.end) return 'End';
+    if (key == LogicalKeyboardKey.pageUp) return 'PageUp';
+    if (key == LogicalKeyboardKey.pageDown) return 'PageDown';
+    if (key == LogicalKeyboardKey.tab) return 'Tab';
+
+    final keyLabel = key.keyLabel;
+    if (keyLabel.isNotEmpty) {
+      return keyLabel.toUpperCase();
+    }
+    return key.debugName ?? 'Key';
   }
 }

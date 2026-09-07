@@ -217,6 +217,28 @@ class QuranApiService {
     }
   }
 
+  /// استرجاع اسم السورة لرقم آية ورقم صفحة محدد
+  String? getSurahNameForAyah({int? page, required int ayah}) {
+    if (page != null && _pageVerseMap != null && _pageVerseMap!.containsKey(page)) {
+      final list = _pageVerseMap![page]!;
+      for (final v in list) {
+        if (v.verseNumber == ayah) {
+          return v.surahName;
+        }
+      }
+    }
+    if (_surahVerseMap != null) {
+      for (final entry in _surahVerseMap!.entries) {
+        for (final v in entry.value) {
+          if (v.verseNumber == ayah && (page == null || v.page == page)) {
+            return v.surahName;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
   Future<List<FetchedVerse>> fetchVersesByRange({
     required int surahNumber,
     required int fromVerse,

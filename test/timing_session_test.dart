@@ -225,7 +225,40 @@ void main() {
     });
 
     test('الأسرع المدعومة صحيحة', () {
-      expect(TimingSession.speeds, [1.0, 1.5, 2.0]);
+      expect(TimingSession.speeds, [0.5, 0.75, 1.0, 1.25, 1.5, 2.0]);
+    });
+
+    test('cancelLoading يلغي التحميل ويعيد ضبط الحالة', () {
+      session.cancelLoading();
+      expect(session.loading, false);
+      expect(session.downloadProgress, null);
+      expect(session.loadingLabel, null);
+    });
+
+    test('loadRemoteUrl برابط غير صالح يرجع null ويحدد رسالة الخطأ', () async {
+      final result = await session.loadRemoteUrl('invalid_url');
+      expect(result, null);
+      expect(session.lastError, isNotNull);
+      expect(session.loading, false);
+    });
+
+    test('togglePreviewLoop يبدل وضع التكرار للمراجعة', () {
+      expect(session.isPreviewLoop, false);
+      session.togglePreviewLoop();
+      expect(session.isPreviewLoop, true);
+      session.togglePreviewLoop();
+      expect(session.isPreviewLoop, false);
+    });
+
+    test('stopPreview يلغي المعاينة النشطة', () {
+      session.stopPreview();
+      expect(session.previewingEntryId, null);
+    });
+
+    test('checkPreviousBackup يعود null عند عدم وجود نسخة احتياطية', () async {
+      await session.clearBackup();
+      final backup = await TimingSession.checkPreviousBackup();
+      expect(backup, null);
     });
   });
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -5,12 +6,14 @@ import 'package:easy_localization/easy_localization.dart';
 
 import 'config/app_localization.dart';
 import 'screens/home_screen.dart';
+import 'services/audio_cache_service.dart';
 import 'services/settings_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   await SettingsService.instance.initialize();
+  unawaited(AudioCacheService.instance.autoCleanOldCache());
 
   runApp(
     EasyLocalization(

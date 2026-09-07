@@ -67,7 +67,10 @@
     "dart": "Dart Seed Code (seed_data.dart)",
     "flutter_player": "Ready Flutter Sync Player Widget",
     "vtt": "WebVTT Subtitle (.vtt)",
-    "srt": "SubRip Subtitle (.srt)"
+    "srt": "SubRip Subtitle (.srt)",
+    "audacity": "Audacity Label Track (.txt)",
+    "csv": "Excel / CSV Spreadsheet (.csv)",
+    "manifest": "Unified Project Manifest (.json)"
   },
 
   "file": {
@@ -75,7 +78,8 @@
     "no_file_selected": "No audio file selected",
     "select_file_first": "Select an audio file first to start recording",
     "import_json": "Import from JSON",
-    "load_from_url": "Load from URL"
+    "load_from_url": "Load from URL",
+    "more_actions": "More actions"
   },
 
   "player": {
@@ -94,13 +98,24 @@
 
   "recording": {
     "record_verse": "Record Verse",
-    "start_recording": "Start {type}",
-    "end_recording": "End {type} #{count}",
+    "start_recording": "Mark Start: {type} #{count}",
+    "end_recording": "Mark End: {type} #{count}",
     "start_verse": "Start verse recording",
     "end_verse": "End verse {count}",
     "pending_verse": "Verse {count} is recording",
+    "pending_banner": "{type} #{count} is recording — Start: {start}. {hint}.",
     "pending_start": "Start",
-    "press_enter_at_end": "Press Enter at the end"
+    "press_enter_at_end": "Press Enter at the end",
+    "cancel_tooltip": "Cancel current boundary (Esc)"
+  },
+
+  "errors": {
+    "invalid_url": "Enter a valid URL starting with http:// or https://",
+    "load_failed": "Failed to load file",
+    "download_failed": "Failed to download audio from URL",
+    "download_cancelled": "Download cancelled",
+    "timeout": "Connection timed out",
+    "file_not_found": "File not found: {path}"
   },
 
   "entries": {
@@ -111,7 +126,11 @@
     "start_time": "Start",
     "end_time": "End",
     "delete_entry": "Delete entry",
-    "verify_play": "Play to verify",
+    "verify_play": "Verify play (stops at end)",
+    "verify_pause": "Pause verification",
+    "loop_preview": "Loop preview",
+    "loop_preview_tooltip": "Repeat segment playback for detailed verification",
+    "edit_tooltip": "Edit segment",
     "undo_tooltip": "Undo last entry (Ctrl+Z)",
     "delete_all_tooltip": "Delete all"
   },
@@ -127,7 +146,8 @@
     "lesson_id": "Lesson ID",
     "lesson_id_hint": "baqarah_lesson_01",
     "audio_url": "Audio URL on R2",
-    "audio_url_hint": "https://pub-xxx.r2.dev/tafsiirapp/baqarah_01.mp3"
+    "audio_url_hint": "https://pub-xxx.r2.dev/tafsiirapp/baqarah_01.mp3",
+    "export_json_btn": "Export JSON"
   },
 
   "import": {
@@ -141,7 +161,12 @@
   "dialog": {
     "delete_all_question": "Delete all timestamps?",
     "delete_all_warning": "This action cannot be undone.",
-    "delete_all": "Delete All"
+    "delete_all": "Delete All",
+    "restore_session_title": "Resume Previous Session",
+    "restore_session_desc": "An unfinished session for \"{file}\" was found with {count} recorded segments. Do you want to resume it?",
+    "resume_session": "Resume Session",
+    "start_fresh": "Start Fresh",
+    "session_resumed_success": "Previous session resumed with {count} segments successfully"
   },
 
   "settings": {
@@ -167,6 +192,13 @@
     "save": "Save",
     "reset_shortcuts_success": "Shortcuts reset to defaults",
     "reset_all_success": "All settings restored to defaults",
+    "storage_cache_title": "Audio Cache & Storage",
+    "storage_cache_desc": "Audio files downloaded from cloud URLs are cached locally for smooth playback and precise waveform generation.",
+    "cache_size": "Cache storage: {size} ({count} files)",
+    "clear_cache_btn": "Clear Audio Cache",
+    "clear_cache_success": "Audio cache cleared, freed {size} successfully",
+    "cache_empty": "Audio cache is completely empty (0 B)",
+    "auto_clean_note": "Files older than 7 days are automatically purged to save disk space.",
     "actions": {
       "play_pause": "Play / Pause",
       "mark_verse": "Record Verse Start/End",
@@ -257,7 +289,8 @@
   },
 
   "filter": {
-    "all": "All"
+    "all": "All",
+    "no_results": "No entries match the current filter"
   },
 
   "edit": {

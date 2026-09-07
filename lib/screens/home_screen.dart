@@ -36,6 +36,119 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _initializeSettings();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkPreviousSession();
+    });
+  }
+
+  Future<void> _checkPreviousSession() async {
+    final backup = await TimingSession.checkPreviousBackup();
+    if (backup == null || !mounted) return;
+
+    final shouldResume = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext ctx) {
+        final scheme = Theme.of(context).colorScheme;
+        return AlertDialog(
+          icon: Icon(Icons.history_rounded, size: 36, color: scheme.primary),
+          title: Text('dialog.restore_session_title'.tr()),
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'dialog.restore_session_desc'.tr(namedArgs: {
+                    'file': backup.fileName,
+                    'count': backup.segmentCount.toString(),
+                  }),
+                  style: const TextStyle(fontSize: 13.5, height: 1.5),
+                ),
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.5)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.audio_file_outlined, size: 22, color: scheme.primary),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          backup.fileName,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: scheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '${backup.segmentCount} ${'export.verses_ready'.tr()}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: scheme.onPrimaryContainer,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text('dialog.start_fresh'.tr()),
+            ),
+            FilledButton.icon(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              icon: const Icon(Icons.play_arrow_rounded, size: 18),
+              label: Text('dialog.resume_session'.tr()),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted) return;
+    if (shouldResume == true) {
+      final lessonId = await _session.restoreSessionFromBackup();
+      if (lessonId != null && lessonId.isNotEmpty) {
+        _lessonIdController.text = lessonId;
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text('dialog.session_resumed_success'.tr(namedArgs: {
+                    'count': _session.entries.length.toString(),
+                  })),
+                ),
+              ],
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } else {
+      await _session.clearBackup();
+    }
   }
 
   @override
@@ -103,14 +216,14 @@ class _HomeScreenState extends State<HomeScreen> {
     _keepShortcutsAlive();
   }
 
-  Future<void> _export() async {
+  Future<bool> _export() async {
     if (_session.entries.isEmpty) {
       _showSnack('export.no_timestamps_to_export'.tr());
-      return;
+      return false;
     }
     if (_lessonIdController.text.trim().isEmpty) {
       _showSnack('export.enter_lesson_id'.tr(), isError: true);
-      return;
+      return false;
     }
     setState(() => _exporting = true);
     try {
@@ -120,16 +233,18 @@ class _HomeScreenState extends State<HomeScreen> {
         sourceFilePath: _session.sourceFilePath,
         entries: _session.entries,
       );
-      if (!mounted || result == null) return;
+      if (!mounted || result == null) return false;
       _showSnack(
         'export.export_success'
             .tr(namedArgs: {'count': result.segmentCount.toString()}),
       );
       await _session.clearBackup();
+      return true;
     } catch (error) {
       if (mounted) {
         _showSnack('${'export.export_failed'.tr()}: $error', isError: true);
       }
+      return false;
     } finally {
       if (mounted) setState(() => _exporting = false);
       _keepShortcutsAlive();
@@ -139,7 +254,21 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showSnack(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Row(
+          children: [
+            Icon(
+              isError
+                  ? Icons.error_outline_rounded
+                  : Icons.check_circle_outline_rounded,
+              size: 18,
+              color: isError
+                  ? Theme.of(context).colorScheme.onError
+                  : Colors.white70,
+            ),
+            const SizedBox(width: 10),
+            Expanded(child: Text(message)),
+          ],
+        ),
         backgroundColor: isError ? Theme.of(context).colorScheme.error : null,
         duration: Duration(seconds: isError ? 5 : 3),
       ),
@@ -148,9 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   SingleActivator _createActivator(String keyString) {
     final parts = keyString.split('+');
-    final rawKey = parts.last.trim();
-    final normalizedKey = rawKey.replaceAll(RegExp(r'\s+'), '').toLowerCase();
-    final key = _lookupLogicalKey(normalizedKey);
+    final key = SettingsService.lookupLogicalKey(keyString);
     return SingleActivator(
       key,
       control: parts.contains('Control'),
@@ -158,43 +285,6 @@ class _HomeScreenState extends State<HomeScreen> {
       alt: parts.contains('Alt'),
       meta: parts.contains('Meta'),
     );
-  }
-
-  LogicalKeyboardKey _lookupLogicalKey(String normalizedKey) {
-    const keyMap = <String, LogicalKeyboardKey>{
-      'space': LogicalKeyboardKey.space,
-      'enter': LogicalKeyboardKey.enter,
-      'numpadenter': LogicalKeyboardKey.numpadEnter,
-      'numenter': LogicalKeyboardKey.numpadEnter,
-      'return': LogicalKeyboardKey.enter,
-      'escape': LogicalKeyboardKey.escape,
-      'esc': LogicalKeyboardKey.escape,
-      'arrowright': LogicalKeyboardKey.arrowRight,
-      'arrowleft': LogicalKeyboardKey.arrowLeft,
-      'arrowup': LogicalKeyboardKey.arrowUp,
-      'arrowdown': LogicalKeyboardKey.arrowDown,
-      'control': LogicalKeyboardKey.control,
-      'ctrl': LogicalKeyboardKey.control,
-      'shift': LogicalKeyboardKey.shift,
-      'alt': LogicalKeyboardKey.alt,
-      'meta': LogicalKeyboardKey.meta,
-      'delete': LogicalKeyboardKey.delete,
-      'del': LogicalKeyboardKey.delete,
-      'z': LogicalKeyboardKey.keyZ,
-      'x': LogicalKeyboardKey.keyX,
-      'c': LogicalKeyboardKey.keyC,
-      'v': LogicalKeyboardKey.keyV,
-      's': LogicalKeyboardKey.keyS,
-      'e': LogicalKeyboardKey.keyE,
-      'm': LogicalKeyboardKey.keyM,
-      'tab': LogicalKeyboardKey.tab,
-      'backspace': LogicalKeyboardKey.backspace,
-      'home': LogicalKeyboardKey.home,
-      'end': LogicalKeyboardKey.end,
-      'pageup': LogicalKeyboardKey.pageUp,
-      'pagedown': LogicalKeyboardKey.pageDown,
-    };
-    return keyMap[normalizedKey] ?? LogicalKeyboardKey.space;
   }
 
   Map<ShortcutActivator, VoidCallback> _buildShortcuts() {
@@ -215,6 +305,8 @@ class _HomeScreenState extends State<HomeScreen> {
       _createActivator(_settings.shortcuts['seek_backward_30s'] ?? 'ArrowDown'):
           () => _seekRelative(-30000),
       _createActivator(_settings.shortcuts['undo'] ?? 'Control+Z'): _undo,
+      _createActivator(_settings.shortcuts['delete_all'] ?? 'Delete'):
+          _confirmClearAll,
 
       // اختصارات التبديل السريع لأنواع المقاطع
       const SingleActivator(LogicalKeyboardKey.digit1): () =>
@@ -241,9 +333,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initializeSettings() async {
-    await _settings.initialize();
     if (mounted) {
-      setState(() {});
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (await UserGuideDialog.shouldShowOnStartup() && mounted) {
           UserGuideDialog.show(context, isFirstLaunch: true);
@@ -473,17 +563,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildControlPanel() {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          TypeSelectorChips(session: _session),
-          const SizedBox(height: 10),
-          PlayerPanel(session: _session),
-          const SizedBox(height: 12),
-          RecordButton(session: _session, onPressed: _mark),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        TypeSelectorChips(session: _session),
+        const SizedBox(height: 8),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                PlayerPanel(session: _session),
+                const SizedBox(height: 10),
+                RecordButton(session: _session, onPressed: _mark),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

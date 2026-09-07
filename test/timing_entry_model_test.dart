@@ -71,7 +71,7 @@ void main() {
 
       expect(json['id'], 1);
       expect(json['number'], 3);
-      expect(json['verseNumber'], 3);
+      expect(json.containsKey('verseNumber'), false);
       expect(json['type'], 'hadith');
       expect(json['page'], 10);
       expect(json['juz'], 1);

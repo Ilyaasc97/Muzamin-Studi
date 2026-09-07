@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
+import '../services/audio_cache_service.dart';
 import '../services/settings_service.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -12,6 +13,49 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  int _cacheBytes = 0;
+  int _cacheCount = 0;
+  bool _isLoadingCache = true;
+  bool _isClearingCache = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshCacheStats();
+  }
+
+  Future<void> _refreshCacheStats() async {
+    final bytes = await AudioCacheService.instance.getCacheSizeBytes();
+    final count = await AudioCacheService.instance.getCacheFileCount();
+    if (mounted) {
+      setState(() {
+        _cacheBytes = bytes;
+        _cacheCount = count;
+        _isLoadingCache = false;
+      });
+    }
+  }
+
+  Future<void> _clearCache() async {
+    setState(() => _isClearingCache = true);
+    final result = await AudioCacheService.instance.clearCache();
+    await _refreshCacheStats();
+    if (mounted) {
+      setState(() => _isClearingCache = false);
+      final formattedSize = AudioCacheService.formatBytes(result.bytesFreed);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            result.filesDeleted > 0
+                ? 'settings.clear_cache_success'.tr(namedArgs: {'size': formattedSize})
+                : 'settings.cache_empty'.tr(),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,6 +106,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   label: Text('settings.reset_shortcuts'.tr()),
                 ),
                 child: _buildShortcutsList(context),
+              ),
+              const SizedBox(height: 16),
+
+              // قسم ذاكرة التخزين المؤقت للملفات الصوتية
+              _buildSectionCard(
+                context,
+                title: 'settings.storage_cache_title'.tr(),
+                icon: Icons.storage_rounded,
+                child: _buildStorageCacheSection(context),
               ),
               const SizedBox(height: 24),
             ],
@@ -260,73 +313,78 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildLatencyTuner(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final latency = SettingsService.instance.latencyOffsetMs;
+    return ListenableBuilder(
+      listenable: SettingsService.instance,
+      builder: (context, _) {
+        final scheme = Theme.of(context).colorScheme;
+        final latency = SettingsService.instance.latencyOffsetMs;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: Text(
-                'settings.latency_hint'.tr(),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).hintColor,
-                    ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: scheme.primaryContainer,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                '${latency > 0 ? '+$latency' : latency} ms',
-                style: TextStyle(
-                  fontFamily: 'monospace',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  color: scheme.onPrimaryContainer,
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'settings.latency_hint'.tr(),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).hintColor,
+                        ),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: scheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '${latency > 0 ? '+$latency' : latency} ms',
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: scheme.onPrimaryContainer,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                IconButton.filledTonal(
+                  tooltip: '-50 ms',
+                  onPressed: () {
+                    SettingsService.instance.setLatencyOffsetMs(latency - 50);
+                  },
+                  icon: const Icon(Icons.remove_rounded, size: 18),
+                ),
+                Expanded(
+                  child: Slider(
+                    value: latency.toDouble(),
+                    min: -1000,
+                    max: 1000,
+                    divisions: 40,
+                    label: '$latency ms',
+                    onChanged: (value) {
+                      SettingsService.instance.setLatencyOffsetMs(value.round());
+                    },
+                  ),
+                ),
+                IconButton.filledTonal(
+                  tooltip: '+50 ms',
+                  onPressed: () {
+                    SettingsService.instance.setLatencyOffsetMs(latency + 50);
+                  },
+                  icon: const Icon(Icons.add_rounded, size: 18),
+                ),
+              ],
             ),
           ],
-        ),
-        const SizedBox(height: 14),
-        Row(
-          children: [
-            IconButton.filledTonal(
-              tooltip: '-50 ms',
-              onPressed: () {
-                SettingsService.instance.setLatencyOffsetMs(latency - 50);
-              },
-              icon: const Icon(Icons.remove_rounded, size: 18),
-            ),
-            Expanded(
-              child: Slider(
-                value: latency.toDouble(),
-                min: -1000,
-                max: 1000,
-                divisions: 40,
-                label: '$latency ms',
-                onChanged: (value) {
-                  SettingsService.instance.setLatencyOffsetMs(value.round());
-                },
-              ),
-            ),
-            IconButton.filledTonal(
-              tooltip: '+50 ms',
-              onPressed: () {
-                SettingsService.instance.setLatencyOffsetMs(latency + 50);
-              },
-              icon: const Icon(Icons.add_rounded, size: 18),
-            ),
-          ],
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -472,6 +530,124 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
     }
   }
+
+  Widget _buildStorageCacheSection(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    final String formattedSize = AudioCacheService.formatBytes(_cacheBytes);
+    final String sizeText = 'settings.cache_size'.tr(namedArgs: {
+      'size': formattedSize,
+      'count': '$_cacheCount',
+    });
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'settings.storage_cache_desc'.tr(),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).hintColor,
+                height: 1.4,
+              ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: scheme.outlineVariant.withValues(alpha: 0.4),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: _cacheCount > 0
+                      ? scheme.primaryContainer.withValues(alpha: 0.6)
+                      : scheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  _cacheCount > 0
+                      ? Icons.folder_zip_outlined
+                      : Icons.folder_off_outlined,
+                  color: _cacheCount > 0 ? scheme.primary : scheme.outline,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (_isLoadingCache)
+                      const SizedBox(
+                        height: 16,
+                        width: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    else
+                      Text(
+                        sizeText,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.schedule_outlined,
+                          size: 13,
+                          color: scheme.outline,
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            'settings.auto_clean_note'.tr(),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: scheme.outline,
+                                  fontSize: 11,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              FilledButton.tonalIcon(
+                onPressed: (_isClearingCache || _cacheCount == 0)
+                    ? null
+                    : _clearCache,
+                icon: _isClearingCache
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.delete_sweep_outlined, size: 18),
+                label: Text('settings.clear_cache_btn'.tr()),
+                style: FilledButton.styleFrom(
+                  backgroundColor: _cacheCount > 0
+                      ? scheme.errorContainer.withValues(alpha: 0.7)
+                      : null,
+                  foregroundColor: _cacheCount > 0
+                      ? scheme.onErrorContainer
+                      : null,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class _ShortcutPickerDialog extends StatefulWidget {
@@ -543,35 +719,12 @@ class _ShortcutPickerDialogState extends State<_ShortcutPickerDialog> {
     if (HardwareKeyboard.instance.isShiftPressed) parts.add('Shift');
     if (HardwareKeyboard.instance.isMetaPressed) parts.add('Meta');
 
-    String keyName = _getLogicalKeyName(key);
+    String keyName = SettingsService.getLogicalKeyName(key);
     parts.add(keyName);
 
     setState(() {
       _capturedKey = parts.join('+');
     });
-  }
-
-  String _getLogicalKeyName(LogicalKeyboardKey key) {
-    if (key == LogicalKeyboardKey.space) return 'Space';
-    if (key == LogicalKeyboardKey.enter) return 'Enter';
-    if (key == LogicalKeyboardKey.numpadEnter) return 'NumpadEnter';
-    if (key == LogicalKeyboardKey.arrowRight) return 'ArrowRight';
-    if (key == LogicalKeyboardKey.arrowLeft) return 'ArrowLeft';
-    if (key == LogicalKeyboardKey.arrowUp) return 'ArrowUp';
-    if (key == LogicalKeyboardKey.arrowDown) return 'ArrowDown';
-    if (key == LogicalKeyboardKey.escape) return 'Escape';
-    if (key == LogicalKeyboardKey.delete) return 'Delete';
-    if (key == LogicalKeyboardKey.home) return 'Home';
-    if (key == LogicalKeyboardKey.end) return 'End';
-    if (key == LogicalKeyboardKey.pageUp) return 'PageUp';
-    if (key == LogicalKeyboardKey.pageDown) return 'PageDown';
-    if (key == LogicalKeyboardKey.tab) return 'Tab';
-
-    final keyLabel = key.keyLabel;
-    if (keyLabel.isNotEmpty) {
-      return keyLabel.toUpperCase();
-    }
-    return key.debugName ?? 'Key';
   }
 
   @override

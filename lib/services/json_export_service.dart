@@ -84,15 +84,18 @@ class JsonExportService {
           : entries.last.endMs - entries.first.startMs,
       if (pageRange != null) 'pageRange': pageRange,
       'countsByType': countsByType,
-      'segments': entries.map((TimingEntry e) => e.toJson(includeText: includeText)).toList(),
+      'segments': [
+        for (int i = 0; i < entries.length; i++)
+          entries[i].toJson(includeText: includeText, exportId: i + 1),
+      ],
     };
 
     try {
       final String jsonText =
           const JsonEncoder.withIndent('  ').convert(payload);
-      final String suggestedName =
-          'sync_${_safeFileName(lessonId.trim().isEmpty ? 'lesson' : lessonId.trim())}'
-          '_${now.millisecondsSinceEpoch}.json';
+      final String cleanLessonId =
+          _safeFileName(lessonId.trim().isEmpty ? 'lesson' : lessonId.trim());
+      final String suggestedName = '$cleanLessonId.json';
 
       final String? targetPath = await _resolveTargetPath(suggestedName);
       if (targetPath == null) return null;

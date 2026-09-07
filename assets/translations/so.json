@@ -67,7 +67,10 @@
     "dart": "Koodhka Dart (seed_data.dart)",
     "flutter_player": "Qalabka Ciyaaryahanka Flutter ee Isku-dhafan",
     "vtt": "Faylka WebVTT (.vtt)",
-    "srt": "Faylka SubRip (.srt)"
+    "srt": "Faylka SubRip (.srt)",
+    "audacity": "Faylka Calaamadaha Audacity (.txt)",
+    "csv": "Shaxda Xisaabta Excel / CSV (.csv)",
+    "manifest": "Diiwaanka Mashruuca Guud (.json)"
   },
 
   "file": {
@@ -75,7 +78,8 @@
     "no_file_selected": "Faylka hadda ayaa ayan la doortay",
     "select_file_first": "Fadlan marka hore dooro faylka codka",
     "import_json": "Soo gali JSON",
-    "load_from_url": "Ka soo qaad URL"
+    "load_from_url": "Ka soo qaad URL",
+    "more_actions": "Ficillo dheeraad ah"
   },
 
   "player": {
@@ -94,13 +98,24 @@
 
   "recording": {
     "record_verse": "Qayd Aayadda",
-    "start_recording": "Bilow qaydinta {type}",
-    "end_recording": "Dhammee {type} #{count}",
+    "start_recording": "Calaamadee Bilowga: {type} #{count}",
+    "end_recording": "Calaamadee Dhamaadka: {type} #{count}",
     "start_verse": "Bilow duubista aayadda",
     "end_verse": "Dhammee aayadda {count}",
     "pending_verse": "Aayadda {count} ayaa socota",
+    "pending_banner": "{type} #{count} waa la duubayaa — Bilawga: {start}. {hint}.",
     "pending_start": "Bilowga",
-    "press_enter_at_end": "Riix Enter marka ay dhamaato"
+    "press_enter_at_end": "Riix Enter marka ay dhamaato",
+    "cancel_tooltip": "Jooji xadka hadda (Esc)"
+  },
+
+  "errors": {
+    "invalid_url": "Geli URL sax ah oo ku bilaabma http:// ama https://",
+    "load_failed": "Faylka soo dejinta ayaa fashilantay",
+    "download_failed": "Ku guuldareystay soo dejinta codka xiriirinta",
+    "download_cancelled": "Soo dejintii waa la joojiyay",
+    "timeout": "Waqtigii xiriirka ayaa dhamaaday",
+    "file_not_found": "Faylka lama helin: {path}"
   },
 
   "entries": {
@@ -110,10 +125,14 @@
     "duration": "Muddada",
     "start_time": "Bilaw",
     "end_time": "Dhamaad",
-    "delete_entry": "Tirtir gelinta",
-    "verify_play": "Dhageyso si aad u hubiso",
-    "undo_tooltip": "Ka noqo kii ugu dambeeyay (Ctrl+Z)",
-    "delete_all_tooltip": "Tirtir Dhammaan"
+    "delete_entry": "Tirtir galitaanka",
+    "verify_play": "Daar si aad u hubiso (wuxuu istaagayaa dhamaadka)",
+    "verify_pause": "Jooji hubinta",
+    "loop_preview": "Ku celi dib u eegista",
+    "loop_preview_tooltip": "Ku celi qaybta si toos ah",
+    "edit_tooltip": "Wax ka beddel qaybta",
+    "undo_tooltip": "Ka noqo galitaankii u dambeeyay (Ctrl+Z)",
+    "delete_all_tooltip": "Tirtir dhammaan"
   },
 
   "export": {
@@ -127,7 +146,8 @@
     "lesson_id": "Aqoonsiga Casharka",
     "lesson_id_hint": "baqarah_lesson_01",
     "audio_url": "Xiriiriyaha Codka R2",
-    "audio_url_hint": "https://pub-xxx.r2.dev/tafsiirapp/baqarah_01.mp3"
+    "audio_url_hint": "https://pub-xxx.r2.dev/tafsiirapp/baqarah_01.mp3",
+    "export_json_btn": "Dhoofi JSON"
   },
 
   "import": {
@@ -141,7 +161,12 @@
   "dialog": {
     "delete_all_question": "Ma tirtirtaa dhammaan waqtiyada?",
     "delete_all_warning": "Falkan dib loogama noqon karo.",
-    "delete_all": "Tirtir Dhammaan"
+    "delete_all": "Tirtir Dhammaan",
+    "restore_session_title": "Dib u bilow Casharkii Hore",
+    "restore_session_desc": "Waxaa la helay cashar hore oo faylka \"{file}\" ah oo leh {count} qaybood. Ma rabtaa inaad sii wadato?",
+    "resume_session": "Sii wad Casharka",
+    "start_fresh": "Bilow Cusub",
+    "session_resumed_success": "Casharkii hore waa la soo celiyay iyadoo leh {count} qaybood"
   },
 
   "settings": {
@@ -167,6 +192,13 @@
     "save": "Keydi",
     "reset_shortcuts_success": "Toobiyeyaasha dib ayaa loogu celiyay sidii hore",
     "reset_all_success": "Dhammaan habaynta dib ayaa loogu celiyay sidii hore",
+    "storage_cache_title": "Kaydka Kumeel-gaarka ah ee Codadka",
+    "storage_cache_desc": "Codadka laga soo dejiyo xiriiriyaha daruuraha waxaa si kumeel-gaar ah loogu keydiyaa kombiyuutarka si ay si habsami leh ugu shaqeeyaan.",
+    "cache_size": "Muuqaalka kaydka: {size} ({count} fayl)",
+    "clear_cache_btn": "Nadiifi Kaydka Codadka",
+    "clear_cache_success": "Kaydka codadka waa la nadiifiyay, waxaana la xoreeyay {size}",
+    "cache_empty": "Kaydka codadku gabi ahaanba waa madhan yahay (0 B)",
+    "auto_clean_note": "Faylasha ka weyn 7 maalmood si toos ah ayaa loo tirtiraa si loo ilaaliyo booska diskiga.",
     "actions": {
       "play_pause": "Ciyaari / Jooji",
       "mark_verse": "Qayd Bilawga/Dhamaadka Aayadda",
@@ -257,7 +289,8 @@
   },
 
   "filter": {
-    "all": "Dhammaan"
+    "all": "Dhammaan",
+    "no_results": "Ma jiraan gelitaanno ku habboon shaandhaynta hadda"
   },
 
   "edit": {

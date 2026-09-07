@@ -85,12 +85,14 @@ class TimingEntry {
     );
   }
 
-  Map<String, dynamic> toJson({bool includeText = false}) {
+  Map<String, dynamic> toJson({bool includeText = false, int? exportId}) {
     final map = <String, dynamic>{
-      'id': id,
+      'id': exportId ?? id,
       'type': type.name,
-      'verseNumber': verseNumber,
-      'number': verseNumber,
+      if (type == SegmentType.quran)
+        'verseNumber': verseNumber
+      else
+        'number': verseNumber,
       'startMs': startMs,
       'endMs': endMs,
       'durationMs': durationMs,

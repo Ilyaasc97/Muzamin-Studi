@@ -168,85 +168,158 @@ class TypeSelectorChips extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: SegmentType.values.map((type) {
-                    final isSelected = type == active;
-                    final brightness = Theme.of(context).brightness;
-                    final isLight = brightness == Brightness.light;
-                    final color = type.colorFor(brightness);
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isLight = Theme.of(context).brightness == Brightness.light;
+                    final isWide = constraints.maxWidth >= 440;
+                    if (isWide) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: isLight
+                              ? scheme.surface
+                              : scheme.surfaceContainerHighest.withValues(alpha: 0.35),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: scheme.outlineVariant.withValues(alpha: isLight ? 0.6 : 0.3),
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(3),
+                        child: Row(
+                          children: SegmentType.values.map((type) {
+                            final isSelected = type == active;
+                            final brightness = Theme.of(context).brightness;
+                            final color = type.colorFor(brightness);
 
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeInOut,
-                      child: InkWell(
-                        onTap: () => session.setActiveType(type),
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 7,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? type.bgBadgeFor(brightness)
-                                : scheme.surface,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: isSelected
-                                  ? color
-                                  : scheme.outlineVariant.withValues(alpha: isLight ? 0.6 : 0.35),
-                              width: isSelected ? 1.8 : 1.0,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 18,
-                                height: 18,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? color
-                                      : scheme.surfaceContainerHighest,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  '${type.hotkeyNumber}',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                    color: isSelected
-                                        ? (isLight ? Colors.white : Colors.black87)
-                                        : scheme.onSurfaceVariant,
+                            return Expanded(
+                              child: Tooltip(
+                                message: '${type.nameKey.tr()} (${type.hotkeyNumber})',
+                                waitDuration: const Duration(milliseconds: 400),
+                                child: InkWell(
+                                  onTap: () => session.setActiveType(type),
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 180),
+                                    curve: Curves.easeOutCubic,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 6,
+                                      horizontal: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? type.bgBadgeFor(brightness)
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: isSelected
+                                            ? color.withValues(alpha: 0.7)
+                                            : Colors.transparent,
+                                        width: 1.2,
+                                      ),
+                                      boxShadow: isSelected
+                                          ? [
+                                              BoxShadow(
+                                                color: color.withValues(alpha: 0.12),
+                                                blurRadius: 6,
+                                                spreadRadius: 0.5,
+                                              ),
+                                            ]
+                                          : null,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          width: 17,
+                                          height: 17,
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            color: isSelected
+                                                ? color
+                                                : scheme.surfaceContainerHighest,
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Text(
+                                            '${type.hotkeyNumber}',
+                                            style: TextStyle(
+                                              fontSize: 9.5,
+                                              fontWeight: FontWeight.bold,
+                                              color: isSelected
+                                                  ? (isLight ? Colors.white : Colors.black87)
+                                                  : scheme.onSurfaceVariant,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Icon(
+                                          type.icon,
+                                          size: 15,
+                                          color: isSelected ? color : scheme.onSurfaceVariant,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Flexible(
+                                          child: Text(
+                                            type.shortNameKey.tr(),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontSize: 11.5,
+                                              fontWeight: isSelected
+                                                  ? FontWeight.bold
+                                                  : FontWeight.w500,
+                                              color: isSelected ? color : scheme.onSurface,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 6),
-                              Icon(
-                                type.icon,
-                                size: 16,
-                                color: isSelected ? color : scheme.onSurfaceVariant,
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                type.nameKey.tr(),
-                                style: TextStyle(
-                                  fontSize: 12.5,
-                                  fontWeight: isSelected
-                                      ? FontWeight.bold
-                                      : FontWeight.w500,
-                                  color: isSelected ? color : scheme.onSurface,
-                                ),
-                              ),
-                            ],
-                          ),
+                            );
+                          }).toList(),
                         ),
-                      ),
+                      );
+                    }
+
+                    // Fallback للشاشات الضيقة جداً
+                    return Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: SegmentType.values.map((type) {
+                        final isSelected = type == active;
+                        final brightness = Theme.of(context).brightness;
+                        final color = type.colorFor(brightness);
+
+                        return InkWell(
+                          onTap: () => session.setActiveType(type),
+                          borderRadius: BorderRadius.circular(8),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: isSelected ? type.bgBadgeFor(brightness) : scheme.surface,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: isSelected ? color : scheme.outlineVariant.withValues(alpha: 0.4),
+                                width: isSelected ? 1.5 : 1.0,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text('${type.hotkeyNumber}', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color)),
+                                const SizedBox(width: 4),
+                                Icon(type.icon, size: 14, color: color),
+                                const SizedBox(width: 4),
+                                Text(type.shortNameKey.tr(), style: TextStyle(fontSize: 11.5, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
                     );
-                  }).toList(),
+                  },
                 ),
               ],
             ),

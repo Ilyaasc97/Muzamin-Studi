@@ -29,14 +29,11 @@ flutter:
   assets:
     - assets/translations/
     - assets/icons/
-    - assets/font/
-    - assets/font/font/
+    - assets/font/       # خطوط العرض العامة (qpc_v4_tajweed.ttf / qpc_v4_uthmanic.ttf)
+    - assets/font/font/  # خطوط صفحات المصحف الـ 604 (QCF2001-QCF2604) — فلاتر لا يضمّن المجلدات الفرعية تلقائياً
     - assets/data/
 
   fonts:
     - family: UthmanicHafs
-      fonts:
-        - asset: assets/font/qpc_v4_tajweed.ttf
-    - family: Amiri
       fonts:
         - asset: assets/font/qpc_v4_tajweed.ttf

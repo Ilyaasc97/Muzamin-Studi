@@ -27,7 +27,7 @@ class PlayerPanel extends StatelessWidget {
         side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         child: ListenableBuilder(
           listenable: session,
           builder: (BuildContext context, Widget? _) {
@@ -36,11 +36,11 @@ class PlayerPanel extends StatelessWidget {
               children: <Widget>[
                 // عداد الوقت الرقمي الاحترافي (Studio Timecode)
                 _TimecodeHeader(session: session),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
 
                 // قسم الموجة الصوتية التفاعلية
                 _StudioWaveform(session: session),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
 
                 // شريط التمرير الدقيق
                 _PositionSlider(player: session.player),
@@ -213,47 +213,74 @@ class _StudioWaveformState extends State<_StudioWaveform> {
     final isGenerating = WaveformService.instance.isGenerating;
     final isLight = Theme.of(context).brightness == Brightness.light;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isLight ? const Color(0xFFF8FAFC) : const Color(0xFF070B13),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isLight ? const Color(0xFFCBD5E1) : const Color(0xFF1F293D),
-        ),
-      ),
-      padding: const EdgeInsets.all(4),
-      child: Stack(
-        children: [
-          StreamBuilder<Duration>(
-            stream: widget.session.player.positionStream,
-            builder: (context, posSnapshot) {
-              final position = posSnapshot.data ?? widget.session.player.position;
-              final duration = widget.session.player.duration ?? Duration.zero;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final waveformHeight = constraints.maxWidth > 500 ? 115.0 : 95.0;
 
-              return WaveformWidget(
-                peaks: WaveformService.instance.peaks,
-                position: position,
-                duration: duration,
-                entries: widget.session.entries,
-                pendingStartMs: widget.session.pendingStartMs,
-                activeType: widget.session.activeType,
-                onSeek: (pos) => widget.session.player.seek(pos),
-                height: 120,
-              );
-            },
-          ),
-          if (isGenerating)
-            const Positioned(
-              top: 8,
-              right: 8,
-              child: SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2),
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: isLight ? const Color(0xFFF8FAFC) : const Color(0xFF070B13),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isLight ? const Color(0xFFCBD5E1) : const Color(0xFF1F293D),
+                ),
+              ),
+              padding: const EdgeInsets.all(4),
+              child: Stack(
+                children: [
+                  StreamBuilder<Duration>(
+                    stream: widget.session.player.positionStream,
+                    builder: (context, posSnapshot) {
+                      final position = posSnapshot.data ?? widget.session.player.position;
+                      final duration = widget.session.player.duration ?? Duration.zero;
+
+                      return WaveformWidget(
+                        peaks: WaveformService.instance.peaks,
+                        position: position,
+                        duration: duration,
+                        entries: widget.session.entries,
+                        pendingStartMs: widget.session.pendingStartMs,
+                        activeType: widget.session.activeType,
+                        onSeek: (pos) => widget.session.player.seek(pos),
+                        onEntryChanged: (updated) => widget.session.updateEntry(updated),
+                        height: waveformHeight,
+                      );
+                    },
+                  ),
+                  // مؤشر صغير في الزاوية للتمييز السريع
+                  if (isGenerating)
+                    const Positioned(
+                      top: 8,
+                      right: 8,
+                      child: SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                ],
               ),
             ),
-        ],
-      ),
+            // شريط تقدم خطي أسفل الموجة أثناء التوليد
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: isGenerating
+                  ? Padding(
+                      key: const ValueKey('prog'),
+                      padding: const EdgeInsets.only(top: 4),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: const LinearProgressIndicator(minHeight: 3),
+                      ),
+                    )
+                  : const SizedBox(key: ValueKey('empty'), height: 7),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -333,39 +360,60 @@ class _StudioControlsBar extends StatelessWidget {
       alignment: WrapAlignment.spaceBetween,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        // اختيار السرعة
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-          decoration: BoxDecoration(
-            color: scheme.surface,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.5)),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: TimingSession.speeds.map((double s) {
-              final isSelected = session.speed == s;
-              return InkWell(
-                onTap: () => session.setSpeed(s),
-                borderRadius: BorderRadius.circular(6),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: isSelected ? scheme.primary : Colors.transparent,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    '${s == s.roundToDouble() ? s.toInt() : s}x',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: isSelected ? scheme.onPrimary : scheme.onSurface,
-                    ),
+        // اختيار السرعة المدمج والأنيق (Compact Speed Selector)
+        PopupMenuButton<double>(
+          tooltip: 'player.speed'.tr(),
+          initialValue: session.speed,
+          onSelected: (double s) => session.setSpeed(s),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            decoration: BoxDecoration(
+              color: scheme.surface,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.5)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.speed_rounded, size: 16, color: scheme.primary),
+                const SizedBox(width: 6),
+                Text(
+                  '${session.speed == session.speed.roundToDouble() ? session.speed.toInt() : session.speed}x',
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.bold,
+                    color: scheme.onSurface,
                   ),
                 ),
-              );
-            }).toList(),
+                const SizedBox(width: 4),
+                Icon(Icons.arrow_drop_down_rounded, size: 16, color: scheme.onSurfaceVariant),
+              ],
+            ),
           ),
+          itemBuilder: (context) => TimingSession.speeds.map((double s) {
+            final isSelected = session.speed == s;
+            return PopupMenuItem<double>(
+              value: s,
+              child: Row(
+                children: [
+                  Icon(
+                    isSelected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                    size: 16,
+                    color: isSelected ? scheme.primary : scheme.outlineVariant,
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    '${s == s.roundToDouble() ? s.toInt() : s}x',
+                    style: TextStyle(
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected ? scheme.primary : null,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
         ),
 
         // أزرار التحكم الرئيسية في المنتصف
@@ -418,7 +466,7 @@ class _StudioControlsBar extends StatelessWidget {
 
         // تعويض التأخير
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
           decoration: BoxDecoration(
             color: scheme.surface,
             borderRadius: BorderRadius.circular(8),
@@ -427,35 +475,30 @@ class _StudioControlsBar extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              IconButton(
+                tooltip: 'player.adjust_latency_down'.tr(),
+                onPressed: () => session.adjustLatency(-50),
+                visualDensity: VisualDensity.compact,
+                iconSize: 16,
+                icon: const Icon(Icons.remove_rounded),
+              ),
               Tooltip(
                 message: 'player.latency_offset'.tr(),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(
-                    '${session.latencyOffsetMs > 0 ? "+" : ""}${session.latencyOffsetMs}ms',
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
+                child: Text(
+                  '${session.latencyOffsetMs > 0 ? "+" : ""}${session.latencyOffsetMs}ms',
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
                   ),
                 ),
               ),
-              InkWell(
-                onTap: () => session.adjustLatency(-50),
-                borderRadius: BorderRadius.circular(4),
-                child: const Padding(
-                  padding: EdgeInsets.all(4),
-                  child: Icon(Icons.remove_rounded, size: 16),
-                ),
-              ),
-              InkWell(
-                onTap: () => session.adjustLatency(50),
-                borderRadius: BorderRadius.circular(4),
-                child: const Padding(
-                  padding: EdgeInsets.all(4),
-                  child: Icon(Icons.add_rounded, size: 16),
-                ),
+              IconButton(
+                tooltip: 'player.adjust_latency_up'.tr(),
+                onPressed: () => session.adjustLatency(50),
+                visualDensity: VisualDensity.compact,
+                iconSize: 16,
+                icon: const Icon(Icons.add_rounded),
               ),
             ],
           ),

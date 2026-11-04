@@ -1,0 +1,41 @@
+name: tafsir_timing_tool
+description: "Muzamin Studio (أستوديو مزامن) — Professional Audio-Text Synchronization Studio for Islamic, Quran & Tafsir Developers."
+publish_to: "none"
+version: 1.0.2+3
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  just_audio: ^0.10.4
+  just_audio_windows: ^0.2.2 # تشغيل الصوت على Windows
+  path_provider: ^2.1.5
+  file_selector: ^1.0.3
+  path: ^1.9.0
+  shared_preferences: ^2.3.0 # الحفظ التلقائي للبيانات
+  easy_localization: ^3.0.7 # دعم اللغات المتعددة
+  window_manager: ^0.6.0 # إدارة النافذة وشريط العنوان لسطح المكتب
+  nativeapi_flutter: ^0.5.8 # ميزات متقدمة لسطح المكتب (السحب والإفلات DropRegion)
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/translations/
+    - assets/icons/
+    - assets/font/       # خطوط العرض العامة (qpc_v4_tajweed.ttf / qpc_v4_uthmanic.ttf)
+    - assets/font/font/  # خطوط صفحات المصحف الـ 604 (QCF2001-QCF2604) — فلاتر لا يضمّن المجلدات الفرعية تلقائياً
+    - assets/data/
+
+  fonts:
+    - family: UthmanicHafs
+      fonts:
+        - asset: assets/font/qpc_v4_tajweed.ttf

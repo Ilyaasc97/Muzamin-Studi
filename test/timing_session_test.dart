@@ -225,7 +225,7 @@ void main() {
     });
 
     test('الأسرع المدعومة صحيحة', () {
-      expect(TimingSession.speeds, [0.5, 0.75, 1.0, 1.25, 1.5, 2.0]);
+      expect(TimingSession.speeds, [0.5, 0.75, 0.85, 1.0, 1.15, 1.25, 1.5, 1.75, 2.0]);
     });
 
     test('cancelLoading يلغي التحميل ويعيد ضبط الحالة', () {

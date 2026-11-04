@@ -20,11 +20,15 @@ class DesktopWindowControls extends StatefulWidget {
 class _DesktopWindowControlsState extends State<DesktopWindowControls> {
   bool _isMaximized = false;
   ListenerId? _listenerId;
-  Window? _window;
 
   Window? get _currentWindow {
-    _window ??= WindowManager.instance.getCurrent();
-    return _window;
+    try {
+      final cur = WindowManager.instance.getCurrent();
+      if (cur != null) return cur;
+      final all = WindowManager.instance.getAll();
+      if (all.isNotEmpty) return all.first;
+    } catch (_) {}
+    return null;
   }
 
   @override
@@ -68,8 +72,10 @@ class _DesktopWindowControlsState extends State<DesktopWindowControls> {
   }
 
   void _minimize() {
-    final win = _currentWindow;
-    win?.minimize();
+    try {
+      final win = _currentWindow;
+      win?.minimize();
+    } catch (_) {}
   }
 
   void _close() {
@@ -173,6 +179,7 @@ class _WindowControlButtonState extends State<_WindowControlButton> {
     }
 
     return MouseRegion(
+      cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(

@@ -725,45 +725,40 @@ class _SurahSearchFieldState extends State<_SurahSearchField> {
         ),
       ],
       builder: (context, controller, child) {
-        return InkWell(
-          onTap: () {
-            if (controller.isOpen) {
-              controller.close();
-            } else {
-              _openMenu();
-            }
-          },
-          borderRadius: BorderRadius.circular(8),
-          child: InputDecorator(
-            isFocused: controller.isOpen,
-            decoration: InputDecoration(
-              labelText: widget.label,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              prefixIcon: const Icon(Icons.menu_book_rounded, size: 18),
-              suffixIcon: IconButton(
-                icon: Icon(
+        return MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: InkWell(
+            onTap: () {
+              if (controller.isOpen) {
+                controller.close();
+              } else {
+                _openMenu();
+              }
+            },
+            borderRadius: BorderRadius.circular(8),
+            child: InputDecorator(
+              isFocused: controller.isOpen,
+              decoration: InputDecoration(
+                labelText: widget.label,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                prefixIcon: const Icon(Icons.menu_book_rounded, size: 18),
+                suffixIcon: Icon(
                   controller.isOpen
                       ? Icons.arrow_drop_up_rounded
                       : Icons.arrow_drop_down_rounded,
                   size: 24,
+                  color: scheme.onSurfaceVariant,
                 ),
-                onPressed: () {
-                  if (controller.isOpen) {
-                    controller.close();
-                  } else {
-                    _openMenu();
-                  }
-                },
               ),
-            ),
-            child: Text(
-              '${widget.selectedSurah.number}. ${widget.selectedSurah.nameArabic}',
-              style: const TextStyle(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
+              child: Text(
+                '${widget.selectedSurah.number}. ${widget.selectedSurah.nameArabic}',
+                style: const TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
-              overflow: TextOverflow.ellipsis,
             ),
           ),
         );

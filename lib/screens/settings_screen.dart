@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:file_selector/file_selector.dart';
 import '../services/audio_cache_service.dart';
 import '../services/settings_service.dart';
 import '../widgets/desktop_window_controls.dart';
@@ -113,6 +114,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: 'settings.latency_offset'.tr(),
                 icon: Icons.timer_outlined,
                 child: _buildLatencyTuner(context),
+              ),
+              const SizedBox(height: 16),
+
+              // قسم مجلدات العمل الافتراضية
+              _buildSectionCard(
+                context,
+                title: 'settings.folders_title'.tr(),
+                icon: Icons.folder_open_rounded,
+                child: _buildFoldersSection(context),
               ),
               const SizedBox(height: 16),
 
@@ -544,12 +554,198 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await SettingsService.instance.resetShortcutsToDefault();
       await SettingsService.instance.setThemeMode(ThemeMode.dark);
       await SettingsService.instance.setLatencyOffsetMs(0);
+      await SettingsService.instance.setDefaultAudioDir(null);
+      await SettingsService.instance.setDefaultExportDir(null);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('settings.reset_all_success'.tr())),
         );
       }
     }
+  }
+
+  Widget _buildFoldersSection(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final settings = SettingsService.instance;
+
+    return ListenableBuilder(
+      listenable: settings,
+      builder: (context, _) {
+        final audioPath = settings.defaultAudioDir ?? settings.lastAudioDir;
+        final hasCustomAudio = settings.defaultAudioDir != null;
+
+        final exportPath = settings.defaultExportDir ?? settings.lastExportDir;
+        final hasCustomExport = settings.defaultExportDir != null;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'settings.folders_description'.tr(),
+              style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 16),
+
+            // مجلد الصوتيات
+            _buildFolderTile(
+              context,
+              title: 'settings.audio_folder_title'.tr(),
+              subtitle: 'settings.audio_folder_desc'.tr(),
+              icon: Icons.audio_file_rounded,
+              currentPath: audioPath,
+              isFixedDefault: hasCustomAudio,
+              onChoose: () async {
+                final selected = await getDirectoryPath(
+                  initialDirectory: settings.effectiveAudioDir,
+                  confirmButtonText: 'settings.select_folder'.tr(),
+                );
+                if (selected != null) {
+                  await settings.setDefaultAudioDir(selected);
+                }
+              },
+              onResetToAuto: hasCustomAudio
+                  ? () => settings.setDefaultAudioDir(null)
+                  : null,
+            ),
+            const Divider(height: 24),
+
+            // مجلد التصدير وحفظ التوقيتات
+            _buildFolderTile(
+              context,
+              title: 'settings.export_folder_title'.tr(),
+              subtitle: 'settings.export_folder_desc'.tr(),
+              icon: Icons.save_as_rounded,
+              currentPath: exportPath,
+              isFixedDefault: hasCustomExport,
+              onChoose: () async {
+                final selected = await getDirectoryPath(
+                  initialDirectory: settings.effectiveExportDir,
+                  confirmButtonText: 'settings.select_folder'.tr(),
+                );
+                if (selected != null) {
+                  await settings.setDefaultExportDir(selected);
+                }
+              },
+              onResetToAuto: hasCustomExport
+                  ? () => settings.setDefaultExportDir(null)
+                  : null,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildFolderTile(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required String? currentPath,
+    required bool isFixedDefault,
+    required VoidCallback onChoose,
+    required VoidCallback? onResetToAuto,
+  }) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerHigh.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 20, color: scheme.primary),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: isFixedDefault
+                      ? scheme.primary.withValues(alpha: 0.15)
+                      : scheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  isFixedDefault
+                      ? 'settings.folder_fixed'.tr()
+                      : 'settings.folder_auto'.tr(),
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                    color: isFixedDefault ? scheme.primary : scheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              if (onResetToAuto != null)
+                TextButton(
+                  onPressed: onResetToAuto,
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                  ),
+                  child: Text('settings.reset_auto'.tr(), style: const TextStyle(fontSize: 11)),
+                ),
+              FilledButton.tonalIcon(
+                onPressed: onChoose,
+                style: FilledButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                ),
+                icon: const Icon(Icons.folder_open_rounded, size: 16),
+                label: Text('settings.choose_folder'.tr(), style: const TextStyle(fontSize: 11.5)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            subtitle,
+            style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: scheme.surface,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.3)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.place_outlined, size: 14, color: scheme.onSurfaceVariant),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    currentPath != null && currentPath.isNotEmpty
+                        ? currentPath
+                        : 'settings.folder_not_set'.tr(),
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontFamily: 'monospace',
+                      color: currentPath != null
+                          ? scheme.onSurface
+                          : scheme.onSurfaceVariant.withValues(alpha: 0.6),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildStorageCacheSection(BuildContext context) {

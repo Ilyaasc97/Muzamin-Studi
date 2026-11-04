@@ -1,3 +1,4 @@
+import 'dart:async' show unawaited;
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
@@ -10,6 +11,7 @@ import '../core/app_logger.dart';
 import '../models/timing_entry.dart';
 import 'json_export_service.dart';
 import 'quran_api_service.dart';
+import 'settings_service.dart';
 
 enum ExportFormat {
   json,
@@ -692,8 +694,10 @@ class MultiFormatExportService {
     String label,
   ) async {
     try {
+      final initialDir = SettingsService.instance.effectiveExportDir;
       final location = await getSaveLocation(
         suggestedName: suggestedName,
+        initialDirectory: initialDir,
         acceptedTypeGroups: [
           XTypeGroup(
             label: '$label (*.$extension)',
@@ -701,7 +705,15 @@ class MultiFormatExportService {
           ),
         ],
       );
-      if (location != null) return location.path;
+      if (location != null) {
+        try {
+          final dir = p.dirname(location.path);
+          if (dir.isNotEmpty && dir != '.') {
+            unawaited(SettingsService.instance.setLastExportDir(dir));
+          }
+        } catch (_) {}
+        return location.path;
+      }
     } catch (_) {}
 
     final dir = await getApplicationDocumentsDirectory();

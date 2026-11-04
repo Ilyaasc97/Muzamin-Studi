@@ -1,3 +1,4 @@
+import 'dart:async' show unawaited;
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
@@ -9,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../core/app_logger.dart';
 import '../models/timing_entry.dart';
+import 'settings_service.dart';
 
 class ExportResult {
   const ExportResult({
@@ -128,15 +130,24 @@ class JsonExportService {
 
     if (isDesktop) {
       try {
+        final initialDir = SettingsService.instance.effectiveExportDir;
         final dynamic location = await getSaveLocation(
           suggestedName: suggestedName,
+          initialDirectory: initialDir,
           acceptedTypeGroups: const <XTypeGroup>[
             XTypeGroup(label: 'JSON', extensions: <String>['json']),
           ],
         );
         if (location != null) {
           final String path = location.path as String;
-          return path.endsWith('.json') ? path : '$path.json';
+          final String outPath = path.endsWith('.json') ? path : '$path.json';
+          try {
+            final dir = p.dirname(outPath);
+            if (dir.isNotEmpty && dir != '.') {
+              unawaited(SettingsService.instance.setLastExportDir(dir));
+            }
+          } catch (_) {}
+          return outPath;
         }
         return null;
       } catch (_) {

@@ -11,6 +11,10 @@ class SettingsService extends ChangeNotifier {
   static const _prefsKeyShortcuts = 'keyboard_shortcuts';
   static const _prefsKeyThemeMode = 'theme_mode';
   static const _prefsKeyLatencyOffset = 'latency_offset_ms';
+  static const _prefsKeyLastAudioDir = 'last_audio_dir';
+  static const _prefsKeyLastExportDir = 'last_export_dir';
+  static const _prefsKeyDefaultAudioDir = 'default_audio_dir';
+  static const _prefsKeyDefaultExportDir = 'default_export_dir';
 
   // Default keyboard shortcuts
   static const Map<String, String> _defaultShortcuts = {
@@ -61,10 +65,24 @@ class SettingsService extends ChangeNotifier {
   Map<String, String> _shortcuts = {};
   ThemeMode _themeMode = ThemeMode.dark;
   int _latencyOffsetMs = 0;
+  String? _lastAudioDir;
+  String? _lastExportDir;
+  String? _defaultAudioDir;
+  String? _defaultExportDir;
 
   Map<String, String> get shortcuts => Map.unmodifiable(_shortcuts);
   ThemeMode get themeMode => _themeMode;
   int get latencyOffsetMs => _latencyOffsetMs;
+  String? get lastAudioDir => _lastAudioDir;
+  String? get lastExportDir => _lastExportDir;
+  String? get defaultAudioDir => _defaultAudioDir;
+  String? get defaultExportDir => _defaultExportDir;
+
+  /// المسار الفعال لفتح الصوتيات (يفضّل الافتراضي إن وجد، وإلا آخر مجلد مستخدم)
+  String? get effectiveAudioDir => _defaultAudioDir ?? _lastAudioDir;
+
+  /// المسار الفعال لتصدير التوقيتات (يفضّل الافتراضي إن وجد، وإلا آخر مجلد مستخدم)
+  String? get effectiveExportDir => _defaultExportDir ?? _lastExportDir;
 
   Future<SharedPreferences> _getPrefs() async {
     _prefs ??= await SharedPreferences.getInstance();
@@ -102,6 +120,12 @@ class SettingsService extends ChangeNotifier {
     // Load latency offset
     _latencyOffsetMs = prefs.getInt(_prefsKeyLatencyOffset) ?? 0;
 
+    // Load folder preferences
+    _lastAudioDir = prefs.getString(_prefsKeyLastAudioDir);
+    _lastExportDir = prefs.getString(_prefsKeyLastExportDir);
+    _defaultAudioDir = prefs.getString(_prefsKeyDefaultAudioDir);
+    _defaultExportDir = prefs.getString(_prefsKeyDefaultExportDir);
+
     notifyListeners();
   }
 
@@ -136,6 +160,56 @@ class SettingsService extends ChangeNotifier {
     try {
       final prefs = await _getPrefs();
       await prefs.setInt(_prefsKeyLatencyOffset, _latencyOffsetMs);
+    } catch (_) {}
+  }
+
+  /// تعيين آخر مجلد تم فتح ملف صوتي منه
+  Future<void> setLastAudioDir(String dir) async {
+    if (_lastAudioDir == dir) return;
+    _lastAudioDir = dir;
+    notifyListeners();
+    try {
+      final prefs = await _getPrefs();
+      await prefs.setString(_prefsKeyLastAudioDir, dir);
+    } catch (_) {}
+  }
+
+  /// تعيين آخر مجلد تم حفظ وتصدير ملف التوقيتات فيه
+  Future<void> setLastExportDir(String dir) async {
+    if (_lastExportDir == dir) return;
+    _lastExportDir = dir;
+    notifyListeners();
+    try {
+      final prefs = await _getPrefs();
+      await prefs.setString(_prefsKeyLastExportDir, dir);
+    } catch (_) {}
+  }
+
+  /// تحديد مجلد افتراضي ثابت لملفات الصوت (أو إزالته للعودة للوضع التلقائي)
+  Future<void> setDefaultAudioDir(String? dir) async {
+    _defaultAudioDir = (dir != null && dir.trim().isNotEmpty) ? dir.trim() : null;
+    notifyListeners();
+    try {
+      final prefs = await _getPrefs();
+      if (_defaultAudioDir != null) {
+        await prefs.setString(_prefsKeyDefaultAudioDir, _defaultAudioDir!);
+      } else {
+        await prefs.remove(_prefsKeyDefaultAudioDir);
+      }
+    } catch (_) {}
+  }
+
+  /// تحديد مجلد افتراضي ثابت لحفظ وتصدير التوقيتات (أو إزالته للعودة للوضع التلقائي)
+  Future<void> setDefaultExportDir(String? dir) async {
+    _defaultExportDir = (dir != null && dir.trim().isNotEmpty) ? dir.trim() : null;
+    notifyListeners();
+    try {
+      final prefs = await _getPrefs();
+      if (_defaultExportDir != null) {
+        await prefs.setString(_prefsKeyDefaultExportDir, _defaultExportDir!);
+      } else {
+        await prefs.remove(_prefsKeyDefaultExportDir);
+      }
     } catch (_) {}
   }
 

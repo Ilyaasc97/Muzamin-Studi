@@ -280,7 +280,11 @@ class TimingSession extends ChangeNotifier {
 
   Future<String?> pickAndLoadAudio() async {
     try {
-      final XFile? file = await openFile(acceptedTypeGroups: audioTypeGroups);
+      final initialDir = SettingsService.instance.effectiveAudioDir;
+      final XFile? file = await openFile(
+        acceptedTypeGroups: audioTypeGroups,
+        initialDirectory: initialDir,
+      );
       if (file == null) return null;
       final String lessonId = generateLessonIdFromPath(file.path);
       await loadLocalFile(file.path);
@@ -293,6 +297,12 @@ class TimingSession extends ChangeNotifier {
 
   Future<String?> loadLocalFile(String path) async {
     final String lessonId = generateLessonIdFromPath(path);
+    try {
+      final dir = p.dirname(path);
+      if (dir.isNotEmpty && dir != '.') {
+        unawaited(SettingsService.instance.setLastAudioDir(dir));
+      }
+    } catch (_) {}
     await _loadAudio(
       () => player.setFilePath(path),
       label: p.basename(path),
@@ -898,12 +908,21 @@ class TimingSession extends ChangeNotifier {
 
   Future<String?> pickAndImportJsonFile() async {
     try {
+      final initialDir = SettingsService.instance.effectiveExportDir;
       final file = await openFile(
         acceptedTypeGroups: const <XTypeGroup>[
           XTypeGroup(label: 'JSON', extensions: <String>['json']),
         ],
+        initialDirectory: initialDir,
       );
       if (file == null) return null;
+
+      try {
+        final dir = p.dirname(file.path);
+        if (dir.isNotEmpty && dir != '.') {
+          unawaited(SettingsService.instance.setLastExportDir(dir));
+        }
+      } catch (_) {}
 
       final success = await importFromJsonFile(file.path);
       return success ? file.path : null;
